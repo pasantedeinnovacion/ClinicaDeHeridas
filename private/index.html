@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>PE-ID-01 · Panel de calidad</title>
+
+    <link rel="stylesheet" href="../public/styles.css">
+</head>
+
+<body>
+
+    <div class="shell">
+
+        <!-- ========================================
+             1. MENÚ LATERAL
+        ========================================= -->
+
+        <aside class="sidebar">
+
+            <!-- Identidad institucional -->
+            <div class="brand">
+
+                <img src="../public/logo.png" alt="Logo HUN" class="brand-logo">
+
+               
+            </div>
+
+            <div class="side-caption">
+                PANEL DE ANÁLISIS
+            </div>
+
+            <!-- Menú de navegación -->
+            <nav id="menu">
+
+                <button data-tab="general" class="active">
+                    <span>▦</span>
+                    Resumen general
+                </button>
+
+                <button data-tab="mensual">
+                    <span>▥</span>
+                    Adherencia por mes
+                </button>
+
+                <button data-tab="comparativo">
+                    <span>⇄</span>
+                    Comparativo de servicios
+                </button>
+
+                <button data-tab="riesgo">
+                    <span>◈</span>
+                    Valoración del riesgo
+                </button>
+
+                <button data-tab="postural">
+                    <span>↗</span>
+                    Cambios posturales
+                </button>
+
+                <button data-tab="prevencion">
+                    <span>✚</span>
+                    Prevención y cuidado
+                </button>
+
+                <button data-tab="calidad">
+                    <span>◫</span>
+                    Calidad de datos
+                </button>
+
+            </nav>
+
+            <!-- Estado de conexión -->
+            <div class="side-bottom">
+                <span class="dot"></span>
+                Datos locales · PE 1167
+                <br>
+                <small>Sin conexión automática</small>
+                <button type="button" id="logout" class="logout-btn">Cerrar sesión</button>
+            </div>
+
+        </aside>
+
+
+        <!-- ========================================
+             2. CONTENIDO PRINCIPAL
+        ========================================= -->
+
+        <main>
+
+            <!-- Encabezado principal -->
+            <header>
+
+                <div>
+                    <div class="eyebrow">
+                        INDICADORES DE CALIDAD / PE 1167
+                    </div>
+
+                    <h1>Prevención de lesiones por presión</h1>
+
+                    <p>
+                        Seguimiento del paquete instruccional ·
+                        Indicador PE-ID-01
+                    </p>
+                </div>
+
+                <button class="export" id="export">
+                    ↓ Exportar CSV
+                </button>
+
+            </header>
+
+
+            <!-- ========================================
+                 3. FILTROS DEL DASHBOARD
+            ========================================= -->
+
+            <section class="filters">
+
+                <!-- Filtro por servicio -->
+                <label>
+                    Servicio
+
+                    <select id="service">
+                        <option value="">Todos los servicios</option>
+                        <option>Salas de Cirugía</option>
+                        <option>UCI</option>
+                        <option>Hospitalización</option>
+                    </select>
+                </label>
+
+                <!-- Filtro por tipo de control -->
+                <label>
+                    Tipo de control
+                    <select id="control"></select>
+                </label>
+
+                <!-- Filtro por evaluador -->
+                <label>
+                    Evaluador
+                    <select id="evaluator"></select>
+                </label>
+
+                <!-- Fecha inicial -->
+                <label>
+                    Desde
+                    <input id="from" type="date">
+                </label>
+
+                <!-- Fecha final -->
+                <label>
+                    Hasta
+                    <input id="to" type="date">
+                </label>
+
+                <!-- Restablecer filtros -->
+                <button id="clear" class="reset">
+                    Limpiar
+                </button>
+
+            </section>
+
+            <!-- Advertencias relacionadas con fechas -->
+            <div id="datewarn" class="warning"></div>
+
+
+            <!-- ========================================
+                 4. INDICADORES PRINCIPALES (KPIs)
+            ========================================= -->
+
+            <section class="kpis">
+
+                <!-- Pacientes únicos -->
+                <article>
+
+                    <div class="kpi-label">
+                        Pacientes únicos
+                        <span>♙</span>
+                    </div>
+
+                    <strong>—</strong>
+
+                    <small>
+                        Requiere identificador seudonimizado
+                    </small>
+
+                </article>
+
+                <!-- Listas de chequeo aplicadas -->
+                <article>
+
+                    <div class="kpi-label">
+                        Listas aplicadas
+                        <span>▤</span>
+                    </div>
+
+                    <strong id="apps">—</strong>
+
+                    <small>Aplicaciones distintas</small>
+
+                </article>
+
+                <!-- Registros disponibles -->
+                <article>
+
+                    <div class="kpi-label">
+                        Registros disponibles
+                        <span>▥</span>
+                    </div>
+
+                    <strong id="records">—</strong>
+
+                    <small>Auditorías filtradas</small>
+
+                </article>
+
+                <!-- Indicador de adherencia -->
+                <article>
+
+                    <div class="kpi-label">
+                        Adherencia PE-ID-01
+                        <span>◎</span>
+                    </div>
+
+                    <strong>— %</strong>
+
+                    <small>
+                        Fórmula institucional pendiente
+                    </small>
+
+                </article>
+
+            </section>
+
+
+            <!-- ========================================
+                 5. ENCABEZADO DE LA SECCIÓN ACTIVA
+            ========================================= -->
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="eyebrow">
+                        EXPLORACIÓN DE RESULTADOS
+                    </div>
+
+                    <h2 id="sectiontitle">
+                        Resumen general
+                    </h2>
+
+                    <p id="sectiondesc">
+                        Indicadores generales del proyecto
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================
+                 6. GRÁFICAS Y ANÁLISIS DE RESULTADOS
+            ========================================= -->
+
+            <section class="dashboard-grid">
+
+                <!-- Panel principal de gráficas -->
+                <article class="panel chart-panel">
+
+                    <div class="panel-head">
+
+                        <div>
+
+                            <h3 id="charttitle">
+                                Aplicaciones por servicio
+                            </h3>
+
+                            <p id="chartdesc">
+                                Distribución de respuestas de la
+                                variable seleccionada
+                            </p>
+
+                        </div>
+
+                        <!-- Selector de variables -->
+                        <label class="pick">
+                            Variable
+                            <select id="variable"></select>
+                        </label>
+
+                    </div>
+
+                    <!-- Contenedor dinámico de la gráfica -->
+                    <div id="visual" class="visual"></div>
+
+                    <!-- Información adicional de la gráfica -->
+                    <div id="foot" class="foot"></div>
+
+                </article>
+
+
+                <!-- Panel de resumen por servicio -->
+                <article class="panel summary-panel">
+
+                    <div class="panel-head">
+
+                        <div>
+
+                            <h3>Vista por servicio</h3>
+
+                            <p>
+                                Distribución de registros filtrados
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Barras comparativas de servicios -->
+                    <div id="servicebars" class="servicebars"></div>
+
+                    <div class="divider"></div>
+
+                    <!-- Interpretación de resultados -->
+                    <h4>Lectura rápida</h4>
+
+                    <div id="insight" class="insight"></div>
+
+                </article>
+
+            </section>
+
+
+            <!-- ========================================
+                 7. DETALLE DE AUDITORÍAS
+            ========================================= -->
+
+            <details class="details">
+
+                <summary>
+                    Ver detalle de auditorías
+                    <span>⌄</span>
+                </summary>
+
+                <div class="detail-inner">
+
+                    <!-- Herramientas de búsqueda -->
+                    <div class="detail-tools">
+
+                        <p>
+                            Registros de análisis sin número de
+                            identificación personal
+                        </p>
+
+                        <input
+                            id="search"
+                            placeholder="Buscar aplicación, servicio o evaluador…"
+                        >
+
+                    </div>
+
+                    <!-- Tabla de resultados -->
+                    <div class="tablewrap">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Aplicación</th>
+                                    <th>Servicio</th>
+                                    <th>Tipo de control</th>
+                                    <th>Evaluador</th>
+                                    <th>Respuesta seleccionada</th>
+                                </tr>
+                            </thead>
+
+                            <!-- Registros generados dinámicamente -->
+                            <tbody id="tbody"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </details>
+
+
+            <!-- ========================================
+                 8. PIE DE PÁGINA
+            ========================================= -->
+
+            <footer>
+                PE 1167 · Versión 5 ·
+                Resultados exploratorios, no indicador oficial validado
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <!-- ========================================
+         9. ARCHIVOS JAVASCRIPT
+    ========================================= -->
+
+    <!-- Base de datos local -->
+    <script src="datos.js"></script>
+
+    <!-- Etiquetas y nombres de variables -->
+    <script src="etiquetas.js"></script>
+
+    <!-- Lógica principal del dashboard -->
+    <script src="app.js"></script>
+
+    <script src="/logout.js"></script>
+</body>
+
+</html>

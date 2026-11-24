@@ -1,0 +1,810 @@
+
+/* ========================================
+   01. CONFIGURACIÓN GENERAL
+======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font: 14px/1.5 Inter, Segoe UI, system-ui, sans-serif;
+    background: #f6f8fc;
+    color: #1b2d43;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+/* ========================================
+   02. ESTRUCTURA PRINCIPAL
+======================================== */
+
+.shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+main {
+    width: calc(100% - 246px);
+    padding: 31px 38px 18px;
+    max-width: 1660px;
+    margin: auto;
+}
+
+
+/* ========================================
+   03. MENÚ LATERAL
+======================================== */
+
+.sidebar {
+    width: 246px;
+    flex-shrink: 0;
+    background: #102b48;
+    color: #fff;
+    min-height: 100vh;
+    padding: 28px 15px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+
+/* ========================================
+   04. LOGO INSTITUCIONAL HUN
+======================================== */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 10px 35px;
+}
+
+/* Contenedor del nuevo logo */
+
+.brandmark {
+    width: 65px;
+    height: 70px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Imagen del búho */
+
+.brand-logo {
+    width: 70%;
+    height: 80%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Nombre institucional */
+
+.brand strong {
+    display: block;
+    font-size: 21px;
+    letter-spacing: .5px;
+}
+
+.brand span {
+    font-size: 11px;
+    color: #aec6dc;
+}
+
+
+/* ========================================
+   05. NAVEGACIÓN LATERAL
+======================================== */
+
+.side-caption {
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    color: #91abc5;
+    font-weight: 800;
+    padding: 0 13px;
+    margin-bottom: 13px;
+}
+
+#menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#menu button {
+    border: 0;
+    text-align: left;
+    background: transparent;
+    color: #c3d3e4;
+    padding: 12px 13px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+#menu button span {
+    font-size: 19px;
+    display: inline-block;
+    width: 29px;
+    vertical-align: middle;
+    font-weight: 400;
+}
+
+#menu button.active,
+#menu button:hover {
+    background: #25496c;
+    color: #fff;
+}
+
+
+/* ========================================
+   06. ESTADO DE CONEXIÓN
+======================================== */
+
+.side-bottom {
+    margin-top: auto;
+    border-top: 1px solid #2d4963;
+    padding: 20px 10px 0;
+    font-size: 12px;
+    color: #c7d8e6;
+}
+
+.side-bottom small {
+    color: #87a8c3;
+    margin-left: 15px;
+}
+
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ac69a;
+    margin-right: 7px;
+}
+
+
+/* ========================================
+   07. ENCABEZADO PRINCIPAL
+======================================== */
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.eyebrow {
+    font-size: 10px;
+    color: #4880ae;
+    letter-spacing: 1.7px;
+    font-weight: 800;
+}
+
+h1 {
+    font-size: 27px;
+    letter-spacing: -.8px;
+    margin: 5px 0 2px;
+}
+
+header p,
+.section-heading p {
+    margin: 0;
+    color: #8190a2;
+    font-size: 13px;
+}
+
+/* Botón de exportación */
+
+.export {
+    border: 1px solid #d6e1ee;
+    background: #fff;
+    color: #245781;
+    padding: 10px 16px;
+    border-radius: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+/* ========================================
+   08. FILTROS DEL DASHBOARD
+======================================== */
+
+.filters {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1.1fr .9fr .9fr auto;
+    gap: 11px;
+    background: white;
+    border: 1px solid #e5ebf2;
+    border-radius: 13px;
+    padding: 16px;
+    align-items: end;
+    box-shadow: 0 4px 20px #132c4906;
+}
+
+.filters label,
+.pick {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 11px;
+    color: #687b91;
+    font-weight: 700;
+}
+
+.filters input,
+.filters select,
+.pick select,
+.detail-tools input {
+    width: 100%;
+    min-width: 0;
+    background: #fff;
+    border: 1px solid #dbe4ee;
+    border-radius: 8px;
+    padding: 10px;
+    color: #2b4259;
+}
+
+/* Botón para limpiar filtros */
+
+.reset {
+    border: 0;
+    background: #eaf2fa;
+    border-radius: 8px;
+    color: #366487;
+    padding: 11px 13px;
+    font-weight: 700;
+}
+
+/* Advertencias */
+
+.warning {
+    color: #926b25;
+    font-size: 12px;
+    margin: 10px 0 0;
+    min-height: 18px;
+}
+
+
+/* ========================================
+   09. INDICADORES PRINCIPALES (KPIs)
+======================================== */
+
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin: 17px 0 31px;
+}
+
+.kpis article {
+    border: 1px solid #e5ebf2;
+    border-radius: 13px;
+    background: #fff;
+    padding: 18px 20px;
+    min-height: 132px;
+    box-shadow: 0 4px 20px #132c4906;
+}
+
+.kpi-label {
+    color: #64758b;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+}
+
+.kpi-label span {
+    color: #76a2c8;
+    font-size: 18px;
+}
+
+.kpis strong {
+    display: block;
+    font-size: 32px;
+    letter-spacing: -1px;
+    margin: 8px 0 2px;
+}
+
+.kpis small {
+    color: #94a1af;
+    font-size: 11px;
+}
+
+
+/* ========================================
+   10. ENCABEZADO DE SECCIONES
+======================================== */
+
+.section-heading {
+    margin-bottom: 16px;
+}
+
+.section-heading h2 {
+    font-size: 22px;
+    letter-spacing: -.5px;
+    margin: 4px 0 0;
+}
+
+
+/* ========================================
+   11. PANELES DEL DASHBOARD
+======================================== */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(285px, 1fr);
+    gap: 17px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid #e5ebf2;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 20px #132c4906;
+    min-height: 395px;
+}
+
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: start;
+}
+
+.panel h3 {
+    font-size: 16px;
+    margin: 0 0 3px;
+}
+
+.panel-head p {
+    margin: 0;
+    color: #8a99aa;
+    font-size: 12px;
+}
+
+/* Selector de variables */
+
+.pick {
+    width: min(280px, 48%);
+}
+
+
+/* ========================================
+   12. GRÁFICAS DE RESULTADOS
+======================================== */
+
+.visual {
+    padding: 23px 0 10px;
+    min-height: 245px;
+}
+
+.barrow {
+    display: grid;
+    grid-template-columns: minmax(100px, 1.2fr) minmax(80px, 2fr) 72px;
+    align-items: center;
+    gap: 12px;
+    margin: 13px 0;
+}
+
+.barlabel {
+    font-size: 12px;
+    color: #4a6076;
+    overflow-wrap: anywhere;
+}
+
+.track {
+    height: 12px;
+    border-radius: 7px;
+    background: #edf3f9;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    background: #3c89db;
+    border-radius: 7px;
+    min-width: 0;
+}
+
+.fill.empty {
+    background: #e2a557;
+}
+
+.barvalue {
+    font-size: 12px;
+    font-weight: 700;
+    color: #526c84;
+    text-align: right;
+}
+
+/* Información inferior de la gráfica */
+
+.foot {
+    border-top: 1px solid #eff2f6;
+    padding-top: 13px;
+    color: #8999a8;
+    font-size: 11px;
+}
+
+
+/* ========================================
+   13. DISTRIBUCIÓN POR SERVICIOS
+======================================== */
+
+.servicebars {
+    margin-top: 26px;
+}
+
+.service-row {
+    margin-bottom: 21px;
+}
+
+.service-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #51657b;
+}
+
+.service-line strong {
+    font-weight: 800;
+    color: #27415b;
+}
+
+.service-track {
+    height: 9px;
+    border-radius: 10px;
+    background: #eaf0f6;
+    overflow: hidden;
+}
+
+.service-fill {
+    height: 100%;
+    background: #3e8bd9;
+    border-radius: 10px;
+}
+
+
+/* ========================================
+   14. LECTURA RÁPIDA DE RESULTADOS
+======================================== */
+
+.divider {
+    height: 1px;
+    background: #eaf0f5;
+    margin: 26px 0 20px;
+}
+
+h4 {
+    margin: 0 0 11px;
+    font-size: 13px;
+}
+
+.insight {
+    font-size: 12px;
+    color: #687b90;
+    line-height: 1.8;
+}
+
+.insight strong {
+    color: #274b6e;
+}
+
+
+/* ========================================
+   15. ESTADOS SIN INFORMACIÓN
+======================================== */
+
+.empty-state {
+    padding: 45px 16px;
+    text-align: center;
+    color: #8b99a8;
+    background: #f8fafc;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.empty-state p {
+    font-weight: normal;
+    line-height: 1.6;
+    margin-top: 8px;
+}
+
+
+/* ========================================
+   16. SECCIONES COMPARATIVAS V5
+   - Adherencia por mes
+   - Comparativo de servicios
+======================================== */
+
+.compare-row {
+    padding: 14px 0;
+    border-bottom: 1px solid #e8edf2;
+}
+
+.compare-row strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.compare-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.compare-values span {
+    padding: 6px 9px;
+    background: #f0f5fa;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #29435b;
+}
+
+.compare-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.compare-selector select {
+    padding: 10px;
+    max-width: 100%;
+    border: 1px solid #d9e1eb;
+    border-radius: 8px;
+    background: white;
+}
+
+
+/* ========================================
+   17. DETALLE DE AUDITORÍAS
+======================================== */
+
+.details {
+    background: white;
+    border: 1px solid #e5ebf2;
+    border-radius: 13px;
+    margin-top: 18px;
+    box-shadow: 0 4px 20px #132c4906;
+}
+
+.details summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 17px 22px;
+    font-weight: 750;
+    color: #315474;
+}
+
+.details summary::-webkit-details-marker {
+    display: none;
+}
+
+.details summary span {
+    float: right;
+}
+
+.detail-inner {
+    padding: 0 22px 20px;
+}
+
+
+/* ========================================
+   18. BUSCADOR DE AUDITORÍAS
+======================================== */
+
+.detail-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-tools p {
+    color: #8796a6;
+    font-size: 12px;
+}
+
+.detail-tools input {
+    max-width: 310px;
+}
+
+
+/* ========================================
+   19. TABLA DE RESULTADOS
+======================================== */
+
+.tablewrap {
+    overflow: auto;
+    max-height: 310px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #edf1f5;
+}
+
+th {
+    color: #6e8297;
+    background: #f7f9fc;
+    position: sticky;
+    top: 0;
+}
+
+td {
+    color: #3c536b;
+}
+
+.muted {
+    color: #a1adba;
+}
+
+
+/* ========================================
+   20. PIE DE PÁGINA
+======================================== */
+
+footer {
+    color: #a4afba;
+    font-size: 11px;
+    margin-top: 22px;
+    text-align: center;
+}
+
+
+/* ========================================
+   21. DISEÑO RESPONSIVE
+======================================== */
+
+
+/* Pantallas medianas y computadores portátiles */
+
+@media (max-width: 1200px) {
+
+    main {
+        padding: 25px;
+    }
+
+    .filters {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* Tablets y pantallas pequeñas */
+
+@media (max-width: 850px) {
+
+    .shell {
+        display: block;
+    }
+
+    .sidebar {
+        width: auto;
+        height: auto;
+        min-height: 0;
+        position: static;
+        padding: 15px;
+    }
+
+    .brand {
+        padding: 0 0 10px;
+    }
+
+    .side-caption,
+    .side-bottom {
+        display: none;
+    }
+
+    #menu {
+        flex-direction: row;
+        overflow: auto;
+    }
+
+    #menu button {
+        white-space: nowrap;
+    }
+
+    main {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filters {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    header {
+        align-items: start;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+}
+
+
+/* Dispositivos móviles */
+
+@media (max-width: 540px) {
+
+    .filters,
+    .kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .panel-head {
+        flex-direction: column;
+    }
+
+    .pick {
+        width: 100%;
+    }
+
+    .barrow {
+        grid-template-columns: 100px 1fr 55px;
+        gap: 7px;
+    }
+
+    .export {
+        font-size: 11px;
+    }
+
+    .detail-tools {
+        display: block;
+    }
+
+}
+
+/* Cierre de sesión */
+.brand { justify-content: center; }
+.brand-logo { width: 70%; height: auto; max-height: 150px; }
+.logout-btn { display:block; width:100%; margin-top:16px; padding:10px; border:1px solid #49637c; border-radius:9px; background:transparent; color:white; font-weight:600; }
+.logout-btn:hover { background:#b83b45; }
+@media(max-width:850px){ .side-bottom {display:block; margin-top:10px; padding:8px 0 0;} .brand-logo {width:75px;} .logout-btn {width:auto; margin-top:8px;} }
