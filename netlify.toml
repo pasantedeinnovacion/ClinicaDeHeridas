@@ -1,20 +1,44 @@
+
 [build]
   publish = "public"
   functions = "netlify/functions"
+
 [functions]
   node_bundler = "esbuild"
   included_files = ["private/**"]
+
 [[redirects]]
   from = "/api/auth"
   to = "/.netlify/functions/auth"
   status = 200
   force = true
+
 [[redirects]]
   from = "/"
   to = "/.netlify/functions/dashboard?file=index.html"
   status = 200
   force = true
+
 [[redirects]]
-  from = "/:file"
-  to = "/.netlify/functions/dashboard?file=:file"
+  from = "/index.html"
+  to = "/.netlify/functions/dashboard?file=index.html"
   status = 200
+  force = true
+
+[[redirects]]
+  from = "/app.js"
+  to = "/.netlify/functions/dashboard?file=app.js"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/datos.js"
+  to = "/.netlify/functions/dashboard?file=datos.js"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/etiquetas.js"
+  to = "/.netlify/functions/dashboard?file=etiquetas.js"
+  status = 200
+  force = true
