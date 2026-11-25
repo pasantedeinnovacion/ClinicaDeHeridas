@@ -42,3 +42,8 @@
   to = "/.netlify/functions/dashboard?file=etiquetas.js"
   status = 200
   force = true
+[[redirects]]
+  from = "/styles.css"
+  to = "/.netlify/functions/dashboard?file=styles.css"
+  status = 200
+  force = true

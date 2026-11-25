@@ -4,10 +4,11 @@ import { resolve } from 'node:path';
 import { session } from './shared.mjs';
 
 const types = {
-  'index.html': 'text/html; charset=utf-8',
-  'app.js': 'text/javascript; charset=utf-8',
-  'datos.js': 'text/javascript; charset=utf-8',
-  'etiquetas.js': 'text/javascript; charset=utf-8'
+    'index.html': 'text/html; charset=utf-8',
+    'app.js': 'text/javascript; charset=utf-8',
+    'datos.js': 'text/javascript; charset=utf-8',
+    'etiquetas.js': 'text/javascript; charset=utf-8',
+    'styles.css': 'text/css; charset=utf-8'
 };
 
 export default async function handler(req) {
