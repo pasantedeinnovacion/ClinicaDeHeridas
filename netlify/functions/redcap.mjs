@@ -1,4 +1,10 @@
 
+// ==========================================
+// CLÍNICA DE HERIDAS - HUN
+// CONEXIÓN REDCAP - PE 1167
+// INDICADOR PE-ID-01
+// ==========================================
+
 const MAP = {
 
     ID_Aplicacion: 'record_id',
@@ -43,7 +49,7 @@ const MAP = {
 };
 
 // ==========================================
-// SERVICIOS AUTORIZADOS PARA EL DASHBOARD
+// 01. SERVICIOS AUTORIZADOS
 // ==========================================
 
 const SERVICES = {
@@ -56,7 +62,7 @@ const SERVICES = {
 };
 
 // ==========================================
-// NORMALIZACIÓN DE TEXTOS
+// 02. NORMALIZACIÓN DE TEXTOS
 // ==========================================
 
 function normalizarTexto(valor) {
@@ -71,7 +77,7 @@ function normalizarTexto(valor) {
 }
 
 // ==========================================
-// VALIDAR AUTOCONTROL
+// 03. VALIDAR AUTOCONTROL
 // ==========================================
 
 function esAutocontrol(valor) {
@@ -87,19 +93,21 @@ function esAutocontrol(valor) {
 }
 
 // ==========================================
-// NORMALIZAR SERVICIO
+// 04. NORMALIZAR SERVICIO
 // ==========================================
 
 function normalizarServicio(valor) {
 
     const servicio = normalizarTexto(valor);
 
-    return SERVICES[servicio] || '';
+    return Object.hasOwn(SERVICES, servicio)
+        ? SERVICES[servicio]
+        : '';
 
 }
 
 // ==========================================
-// NORMALIZAR CHECKBOX REDCAP
+// 05. NORMALIZAR CHECKBOX REDCAP
 // ==========================================
 
 function normalizarCheckbox(valor) {
@@ -129,7 +137,7 @@ function normalizarCheckbox(valor) {
 }
 
 // ==========================================
-// OBTENER DATOS DESDE REDCAP
+// 06. OBTENER DATOS DESDE REDCAP
 // ==========================================
 
 export async function obtenerDatosRedcap() {
@@ -208,24 +216,46 @@ export async function obtenerDatosRedcap() {
     // CONSULTA A REDCAP
     // ======================================
 
-    const response = await fetch(apiUrl, {
+    let response;
 
-        method: 'POST',
+    try {
 
-        headers: {
+        response = await fetch(apiUrl, {
 
-            'Content-Type':
-                'application/x-www-form-urlencoded'
+            method: 'POST',
 
-        },
+            headers: {
 
-        body,
+                'Content-Type':
+                    'application/x-www-form-urlencoded'
 
-        signal: AbortSignal.timeout(20000)
+            },
 
-    });
+            body,
+
+            signal: AbortSignal.timeout(20000)
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            '[REDCap] Error de conexión:',
+            error.name
+        );
+
+        throw new Error(
+            'No fue posible conectar con REDCap'
+        );
+
+    }
 
     if (!response.ok) {
+
+        console.error(
+            '[REDCap] Error HTTP:',
+            response.status
+        );
 
         throw new Error(
             `REDCap HTTP ${response.status}`
@@ -233,7 +263,23 @@ export async function obtenerDatosRedcap() {
 
     }
 
-    const records = await response.json();
+    // ======================================
+    // VALIDAR RESPUESTA
+    // ======================================
+
+    let records;
+
+    try {
+
+        records = await response.json();
+
+    } catch {
+
+        throw new Error(
+            'REDCap no devolvió un JSON válido'
+        );
+
+    }
 
     if (!Array.isArray(records)) {
 
@@ -242,6 +288,11 @@ export async function obtenerDatosRedcap() {
         );
 
     }
+
+    console.log(
+        '[REDCap] Registros recibidos:',
+        records.length
+    );
 
     // ======================================
     // FILTRAR ÚNICAMENTE AUTOCONTROL
@@ -253,11 +304,16 @@ export async function obtenerDatosRedcap() {
 
     );
 
+    console.log(
+        '[REDCap] Registros de autocontrol:',
+        registrosAutocontrol.length
+    );
+
     // ======================================
-    // PROCESAR REGISTROS AUTORIZADOS
+    // PROCESAR REGISTROS
     // ======================================
 
-    const datos = registrosAutocontrol
+    const registrosProcesados = registrosAutocontrol
 
         .map(record => {
 
@@ -294,11 +350,20 @@ export async function obtenerDatosRedcap() {
 
             // Evaluador de autocontrol
 
-            row.Evaluador = row.Evaluador_Autocontrol;
+            row.Evaluador =
+                row.Evaluador_Autocontrol;
 
-            // Mantener compatibilidad con el frontend
+            // Compatibilidad con el frontend
 
             row.Evaluador_Externo = '';
+
+            // Conservar el valor original del personal
+            // No aplicar filtros con etiquetas
+            // que todavía no han sido verificadas.
+
+            row.Personal_Diligencia = String(
+                row.Personal_Diligencia ?? ''
+            ).trim();
 
             // Fecha de auditoría
 
@@ -311,21 +376,67 @@ export async function obtenerDatosRedcap() {
 
             return row;
 
-        })
+        });
 
-        // ==================================
-        // FILTRO FINAL DEL DASHBOARD
-        // ==================================
+    // ======================================
+    // FILTRAR SERVICIOS ASISTENCIALES
+    // ======================================
 
-        .filter(row =>
+    const registrosServicios = registrosProcesados
 
-            row.Tipo_Control === 'Autocontrol' &&
+        .filter(row => row.Servicio !== '');
 
-            row.Servicio !== '' &&
+    console.log(
+        '[REDCap] Registros de servicios autorizados:',
+        registrosServicios.length
+    );
 
-            row.Valoracion_Riesgos === 'Checked'
+    // ======================================
+    // FILTRO FINAL DEL DASHBOARD
+    // ======================================
 
+    const datos = registrosServicios.filter(row =>
+
+        row.Tipo_Control === 'Autocontrol' &&
+
+        row.Valoracion_Riesgos === 'Checked'
+
+    );
+
+    // ======================================
+    // DIAGNÓSTICO DE REGISTROS
+    // ======================================
+
+    console.log(
+        '[REDCap] Registros finales:',
+        datos.length
+    );
+
+    console.log('[REDCap] Resumen de filtros:', {
+
+        recibidos: records.length,
+
+        autocontrol: registrosAutocontrol.length,
+
+        serviciosAutorizados: registrosServicios.length,
+
+        valoracionRiesgos: datos.length
+
+    });
+
+    // Advertencia si todos los registros
+    // fueron descartados.
+
+    if (records.length > 0 && datos.length === 0) {
+
+        console.warn(
+            '[REDCap] Existen registros en la consulta, ' +
+            'pero ninguno cumple los filtros actuales. ' +
+            'Verificar las etiquetas de control, ' +
+            'servicio y valoración de riesgos.'
         );
+
+    }
 
     // ======================================
     // DEVOLVER DATOS AL DASHBOARD

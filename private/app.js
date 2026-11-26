@@ -96,14 +96,23 @@ const all = (window.PE1167_DATA || [])
 
         services.includes(r.Servicio) &&
 
-        normalizarTexto(r.Personal_Diligencia) ===
-            'personal del servicio' &&
-
         ['checked', '1'].includes(
             normalizarTexto(r.Valoracion_Riesgos)
         )
 
     );
+
+// Diagnóstico de registros
+
+console.log(
+    '[PE1167] Registros recibidos:',
+    (window.PE1167_DATA || []).length
+);
+
+console.log(
+    '[PE1167] Registros admitidos:',
+    all.length
+);
 
 // ==========================================
 // 03. ETIQUETAS
