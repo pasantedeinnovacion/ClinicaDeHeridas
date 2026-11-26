@@ -3,7 +3,6 @@
 <html lang="es">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,23 +10,18 @@
 
     <meta name="robots" content="noindex, nofollow">
 
-    <title>PE-ID-01 · Panel de calidad HUN</title>
+    <title>Clínica de Heridas · PE-ID-01 | HUN</title>
 
     <link rel="stylesheet" href="./styles.css">
-
 </head>
 
 <body>
 
     <div class="shell">
 
-        <!-- ========================================
-             1. MENÚ LATERAL
-        ========================================= -->
+        <!-- MENÚ LATERAL -->
 
         <aside class="sidebar">
-
-            <!-- IDENTIDAD INSTITUCIONAL -->
 
             <div class="brand">
 
@@ -40,81 +34,61 @@
             </div>
 
             <div class="side-caption">
-                PANEL DE ANÁLISIS
+                CLÍNICA DE HERIDAS
             </div>
-
-            <!-- MENÚ DE NAVEGACIÓN -->
 
             <nav id="menu">
 
-                <button
-                    type="button"
-                    data-tab="general"
-                    class="active"
-                >
+                <button type="button"
+                        data-tab="general"
+                        class="active">
                     <span>▦</span>
                     Resumen general
                 </button>
 
-                <button
-                    type="button"
-                    data-tab="mensual"
-                >
+                <button type="button"
+                        data-tab="mensual">
                     <span>▥</span>
                     Adherencia por mes
                 </button>
 
-                <button
-                    type="button"
-                    data-tab="comparativo"
-                >
+                <button type="button"
+                        data-tab="comparativo">
                     <span>⇄</span>
                     Comparativo de servicios
                 </button>
 
-                <button
-                    type="button"
-                    data-tab="riesgo"
-                >
+                <button type="button"
+                        data-tab="riesgo">
                     <span>◈</span>
                     Valoración del riesgo
                 </button>
 
-                <button
-                    type="button"
-                    data-tab="postural"
-                >
+                <button type="button"
+                        data-tab="postural">
                     <span>↗</span>
                     Cambios posturales
                 </button>
 
-                <button
-                    type="button"
-                    data-tab="prevencion"
-                >
+                <button type="button"
+                        data-tab="prevencion">
                     <span>✚</span>
                     Prevención y cuidado
                 </button>
 
-                <button
-                    type="button"
-                    data-tab="calidad"
-                >
+                <button type="button"
+                        data-tab="calidad">
                     <span>◫</span>
                     Calidad de datos
                 </button>
 
             </nav>
 
-            <!-- CERRAR SESIÓN -->
-
             <div class="side-bottom">
 
-                <button
-                    type="button"
-                    id="logout"
-                    class="logout-btn"
-                >
+                <button type="button"
+                        id="logout"
+                        class="logout-btn">
                     ↪ Cerrar sesión
                 </button>
 
@@ -126,21 +100,16 @@
 
         </aside>
 
-
-        <!-- ========================================
-             2. CONTENIDO PRINCIPAL
-        ========================================= -->
+        <!-- CONTENIDO PRINCIPAL -->
 
         <main>
-
-            <!-- ENCABEZADO PRINCIPAL -->
 
             <header>
 
                 <div>
 
                     <div class="eyebrow">
-                        INDICADORES DE CALIDAD / PE 1167
+                        CLÍNICA DE HERIDAS / PE 1167
                     </div>
 
                     <h1>
@@ -148,34 +117,27 @@
                     </h1>
 
                     <p>
-                        Seguimiento del paquete instruccional ·
+                        Seguimiento de autocontrol asistencial ·
                         Indicador PE-ID-01
                     </p>
 
                 </div>
 
-                <button
-                    type="button"
-                    class="export"
-                    id="export"
-                >
+                <button type="button"
+                        class="export"
+                        id="export">
                     ↓ Exportar CSV
                 </button>
 
             </header>
 
-
-            <!-- ========================================
-                 3. FILTROS DEL DASHBOARD
-            ========================================= -->
+            <!-- FILTROS -->
 
             <section class="filters">
 
-                <!-- SERVICIO -->
-
                 <label for="service">
 
-                    Servicio
+                    Servicio asistencial
 
                     <select id="service">
 
@@ -199,40 +161,32 @@
 
                 </label>
 
-                <!-- TIPO DE CONTROL -->
+                <!-- TIPO DE CONTROL FIJO -->
 
                 <label for="control">
 
                     Tipo de control
 
-                    <select id="control">
+                    <select id="control" disabled>
 
-                        <option value="">
-                            Todos los controles
-                        </option>
-
-                        <option value="Autocontrol">
+                        <option value="Autocontrol" selected>
                             Autocontrol
-                        </option>
-
-                        <option value="Control Externo">
-                            Control Externo
                         </option>
 
                     </select>
 
                 </label>
 
-                <!-- EVALUADOR -->
+                <!-- PERSONAL DE AUTOCONTROL -->
 
                 <label for="evaluator">
 
-                    Evaluador
+                    Personal de autocontrol
 
                     <select id="evaluator">
 
                         <option value="">
-                            Todos los evaluadores
+                            Todo el personal
                         </option>
 
                     </select>
@@ -245,10 +199,8 @@
 
                     Desde
 
-                    <input
-                        id="from"
-                        type="date"
-                    >
+                    <input id="from"
+                           type="date">
 
                 </label>
 
@@ -258,50 +210,33 @@
 
                     Hasta
 
-                    <input
-                        id="to"
-                        type="date"
-                    >
+                    <input id="to"
+                           type="date">
 
                 </label>
 
-                <!-- LIMPIAR FILTROS -->
-
-                <button
-                    type="button"
-                    id="clear"
-                    class="reset"
-                >
+                <button type="button"
+                        id="clear"
+                        class="reset">
                     Limpiar
                 </button>
 
             </section>
 
-            <!-- ADVERTENCIAS DE FECHAS -->
+            <div id="datewarn"
+                 class="warning"
+                 role="status">
+            </div>
 
-            <div
-                id="datewarn"
-                class="warning"
-                role="status"
-            ></div>
-
-
-            <!-- ========================================
-                 4. INDICADORES PRINCIPALES
-            ========================================= -->
+            <!-- INDICADORES PRINCIPALES -->
 
             <section class="kpis">
-
-                <!-- ADHERENCIA GENERAL -->
 
                 <article class="kpi-primary">
 
                     <div class="kpi-label">
-
                         Adherencia PE-ID-01
-
                         <span>◎</span>
-
                     </div>
 
                     <strong id="adherenceKpi">
@@ -309,21 +244,16 @@
                     </strong>
 
                     <small>
-                        Cálculo por criterio evaluado
+                        Adherencia por autocontrol
                     </small>
 
                 </article>
 
-                <!-- LISTAS APLICADAS -->
-
                 <article>
 
                     <div class="kpi-label">
-
                         Listas aplicadas
-
                         <span>▤</span>
-
                     </div>
 
                     <strong id="apps">
@@ -331,21 +261,16 @@
                     </strong>
 
                     <small>
-                        Aplicaciones distintas
+                        Aplicaciones de autocontrol
                     </small>
 
                 </article>
 
-                <!-- NUMERADOR -->
-
                 <article>
 
                     <div class="kpi-label">
-
                         Numerador
-
                         <span>✓</span>
-
                     </div>
 
                     <strong id="numerator">
@@ -358,16 +283,11 @@
 
                 </article>
 
-                <!-- DENOMINADOR -->
-
                 <article>
 
                     <div class="kpi-label">
-
                         Denominador
-
                         <span>▥</span>
-
                     </div>
 
                     <strong id="denominator">
@@ -386,24 +306,22 @@
 
             <div class="overview-note">
 
-                Registros filtrados:
+                Registros de autocontrol:
 
                 <strong id="records">—</strong>
 
-                · Pacientes únicos: no disponibles
+                · Control externo excluido
 
                 · Cálculo provisional del indicador
 
             </div>
 
+            <!-- RESUMEN GENERAL -->
 
-            <!-- ========================================
-                 5. RESUMEN GENERAL DE ADHERENCIA
-            ========================================= -->
+            <section id="overview"
+                     class="overview">
 
-            <section id="overview" class="overview">
-
-                <!-- GRÁFICA MENSUAL -->
+                <!-- EVOLUCIÓN MENSUAL -->
 
                 <article class="panel">
 
@@ -416,15 +334,13 @@
                             </h3>
 
                             <p>
-                                Comportamiento del indicador
-                                PE-ID-01 a través del tiempo
+                                Seguimiento mensual del autocontrol
+                                en prevención de lesiones por presión
                             </p>
 
                         </div>
 
                     </div>
-
-                    <!-- GRÁFICA GENERADA POR APP.JS -->
 
                     <div id="monthlyLine">
 
@@ -436,7 +352,7 @@
 
                 </article>
 
-                <!-- ADHERENCIA POR SERVICIO -->
+                <!-- COMPARATIVO DE SERVICIOS -->
 
                 <article class="panel">
 
@@ -449,14 +365,12 @@
                             </h3>
 
                             <p>
-                                Comparativo de servicios asistenciales
+                                Comparativo de autocontrol asistencial
                             </p>
 
                         </div>
 
                     </div>
-
-                    <!-- BARRAS POR SERVICIO -->
 
                     <div id="overviewServices">
 
@@ -467,8 +381,6 @@
                     </div>
 
                     <div class="divider"></div>
-
-                    <!-- DISTRIBUCIÓN DE CRITERIOS -->
 
                     <h3>
                         Distribución de criterios
@@ -486,17 +398,14 @@
 
             </section>
 
-
-            <!-- ========================================
-                 6. ENCABEZADO DE LA SECCIÓN ACTIVA
-            ========================================= -->
+            <!-- ENCABEZADO DE SECCIÓN -->
 
             <div class="section-heading">
 
                 <div>
 
                     <div class="eyebrow">
-                        EXPLORACIÓN DE RESULTADOS
+                        ANÁLISIS DE AUTOCONTROL
                     </div>
 
                     <h2 id="sectiontitle">
@@ -505,21 +414,16 @@
 
                     <p id="sectiondesc">
                         Indicador PE-ID-01 y caracterización
-                        de las auditorías
+                        de los registros de autocontrol
                     </p>
 
                 </div>
 
             </div>
 
-
-            <!-- ========================================
-                 7. GRÁFICAS Y ANÁLISIS DETALLADO
-            ========================================= -->
+            <!-- ANÁLISIS DETALLADO -->
 
             <section class="dashboard-grid">
-
-                <!-- PANEL PRINCIPAL -->
 
                 <article class="panel chart-panel">
 
@@ -538,12 +442,8 @@
 
                         </div>
 
-                        <!-- SELECTOR DE VARIABLES -->
-
-                        <label
-                            class="pick"
-                            for="variable"
-                        >
+                        <label class="pick"
+                               for="variable">
 
                             Variable
 
@@ -553,9 +453,8 @@
 
                     </div>
 
-                    <!-- GRÁFICA DINÁMICA -->
-
-                    <div id="visual" class="visual">
+                    <div id="visual"
+                         class="visual">
 
                         <div class="empty-state">
                             Cargando resultados...
@@ -563,12 +462,9 @@
 
                     </div>
 
-                    <!-- INFORMACIÓN DE LA GRÁFICA -->
-
-                    <div
-                        id="foot"
-                        class="foot"
-                    ></div>
+                    <div id="foot"
+                         class="foot">
+                    </div>
 
                 </article>
 
@@ -585,47 +481,39 @@
                             </h3>
 
                             <p>
-                                Distribución de registros filtrados
+                                Distribución de registros
+                                de autocontrol
                             </p>
 
                         </div>
 
                     </div>
 
-                    <!-- REGISTROS POR SERVICIO -->
-
-                    <div
-                        id="servicebars"
-                        class="servicebars"
-                    ></div>
+                    <div id="servicebars"
+                         class="servicebars">
+                    </div>
 
                     <div class="divider"></div>
-
-                    <!-- INTERPRETACIÓN -->
 
                     <h4>
                         Lectura rápida
                     </h4>
 
-                    <div
-                        id="insight"
-                        class="insight"
-                    ></div>
+                    <div id="insight"
+                         class="insight">
+                    </div>
 
                 </article>
 
             </section>
 
-
-            <!-- ========================================
-                 8. DETALLE DE AUDITORÍAS
-            ========================================= -->
+            <!-- DETALLE DE AUTOCONTROL -->
 
             <details class="details">
 
                 <summary>
 
-                    Ver detalle de auditorías
+                    Ver detalle de autocontrol
 
                     <span>⌄</span>
 
@@ -633,26 +521,22 @@
 
                 <div class="detail-inner">
 
-                    <!-- BUSCADOR -->
-
                     <div class="detail-tools">
 
                         <p>
-                            Registros de análisis sin número
-                            de identificación personal
+                            Registros de autocontrol
+                            del personal asistencial
                         </p>
 
                         <input
                             id="search"
                             type="search"
-                            aria-label="Buscar auditorías"
-                            placeholder="Buscar aplicación, servicio o evaluador..."
+                            aria-label="Buscar registros de autocontrol"
+                            placeholder="Buscar aplicación, servicio o personal..."
                             autocomplete="off"
                         >
 
                     </div>
-
-                    <!-- TABLA DE AUDITORÍAS -->
 
                     <div class="tablewrap">
 
@@ -667,7 +551,7 @@
                                     </th>
 
                                     <th>
-                                        Servicio
+                                        Servicio asistencial
                                     </th>
 
                                     <th>
@@ -675,7 +559,7 @@
                                     </th>
 
                                     <th>
-                                        Evaluador
+                                        Personal de autocontrol
                                     </th>
 
                                     <th>
@@ -685,8 +569,6 @@
                                 </tr>
 
                             </thead>
-
-                            <!-- REGISTROS DINÁMICOS -->
 
                             <tbody id="tbody"></tbody>
 
@@ -698,18 +580,19 @@
 
             </details>
 
-
-            <!-- ========================================
-                 9. PIE DE PÁGINA
-            ========================================= -->
+            <!-- PIE DE PÁGINA -->
 
             <footer>
 
-                PE 1167 · Versión 6 ·
+                Clínica de Heridas · PE 1167 · Versión 6.1
 
-                Hospital Universitario Nacional de Colombia
+                · Hospital Universitario Nacional de Colombia
 
-                · Indicador PE-ID-01 pendiente de validación institucional
+                · Indicador PE-ID-01
+
+                · Autocontrol asistencial
+
+                · Cálculo pendiente de validación institucional
 
             </footer>
 
@@ -717,24 +600,13 @@
 
     </div>
 
-
-    <!-- ========================================
-         10. ARCHIVOS JAVASCRIPT
-    ========================================= -->
-
-    <!-- DATOS PROVENIENTES DE REDCAP -->
+    <!-- ARCHIVOS JAVASCRIPT -->
 
     <script src="./datos.js"></script>
 
-    <!-- ETIQUETAS DE VARIABLES -->
-
     <script src="./etiquetas.js"></script>
 
-    <!-- LÓGICA PRINCIPAL DEL DASHBOARD -->
-
     <script src="./app.js"></script>
-
-    <!-- CIERRE DE SESIÓN -->
 
     <script src="/logout.js"></script>
 
