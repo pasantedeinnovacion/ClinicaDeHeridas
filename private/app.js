@@ -1,20 +1,8 @@
 
-const all = window.PE1167_DATA || [];
-
-const bradenLabels = {
-    Percepcion_Sensorial: 'Percepción sensorial',
-    Humedad: 'Humedad',
-    Actividad_Fisica: 'Actividad física',
-    Movilidad: 'Movilidad',
-    Nutricion: 'Nutrición',
-    Friccion: 'Fricción y deslizamiento',
-    Total_Braden: 'Total riesgo LPP - Escala Braden'
-};
-
-const labels = {
-    ...(window.PE1167_LABELS || {}),
-    ...bradenLabels
-};
+// ==========================================
+// DASHBOARD PE-ID-01 - CLÍNICA DE HERIDAS
+// AUTOCONTROL - PERSONAL DEL MISMO SERVICIO
+// ==========================================
 
 const $ = id => document.getElementById(id);
 
@@ -29,17 +17,217 @@ const esc = v => String(v ?? '').replace(
     }[c])
 );
 
+function normalizarTexto(valor) {
+    return String(valor ?? '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ');
+}
+
+// ==========================================
+// 01. SERVICIOS AUTORIZADOS
+// ==========================================
+
 const services = [
     'Salas de Cirugía',
     'UCI',
     'Hospitalización'
 ];
 
+function normalizarServicio(valor) {
+
+    const mapa = {
+        'uci': 'UCI',
+        'cuidado critico': 'UCI',
+        '4': 'UCI',
+
+        'hospitalizacion': 'Hospitalización',
+        '5': 'Hospitalización',
+
+        'salas de cirugia': 'Salas de Cirugía',
+        '6': 'Salas de Cirugía'
+    };
+
+    return mapa[normalizarTexto(valor)] || '';
+
+}
+
 // ==========================================
-// 01. CRITERIOS DE ADHERENCIA PE-ID-01
+// 02. EVALUADORES DEL MISMO SERVICIO
+// ==========================================
+
+const evaluadoresPorServicio = {
+
+    'UCI': [
+        'autocontrol cuidado critico',
+        '1'
+    ],
+
+    'Hospitalización': [
+        'autocontrol hospitalizacion',
+        '2'
+    ],
+
+    'Salas de Cirugía': [
+        'autocontrol salas de cirugia',
+        '3'
+    ]
+
+};
+
+const nombresEvaluadores = {
+
+    'UCI': 'Autocontrol Cuidado Crítico',
+
+    'Hospitalización': 'Autocontrol Hospitalización',
+
+    'Salas de Cirugía': 'Autocontrol Salas de Cirugía'
+
+};
+
+// ==========================================
+// 03. FILTRADO INICIAL DE REGISTROS
+// ==========================================
+
+const datosOriginales = Array.isArray(window.PE1167_DATA)
+    ? window.PE1167_DATA
+    : [];
+
+const registrosAutocontrol = datosOriginales.filter(r =>
+
+    [
+        'autocontrol',
+        'auto control',
+        'auto-control',
+        '1'
+    ].includes(normalizarTexto(r.Tipo_Control))
+
+);
+
+const registrosPersonalServicio =
+    registrosAutocontrol.filter(r =>
+
+        [
+            'personal del servicio',
+            'personal del mismo servicio',
+            '1'
+        ].includes(
+            normalizarTexto(r.Personal_Diligencia)
+        )
+
+    );
+
+const registrosServicios =
+    registrosPersonalServicio.map(r => ({
+
+        ...r,
+
+        Servicio: normalizarServicio(r.Servicio)
+
+    })).filter(r =>
+
+        services.includes(r.Servicio)
+
+    );
+
+const all = registrosServicios.filter(r => {
+
+    const evaluador = normalizarTexto(
+        r.Evaluador_Autocontrol
+    );
+
+    return (
+        evaluadoresPorServicio[r.Servicio] || []
+    ).includes(evaluador);
+
+}).map(r => ({
+
+    ...r,
+
+    Tipo_Control: 'Autocontrol',
+
+    Personal_Diligencia: 'Personal del Servicio',
+
+    Evaluador_Autocontrol:
+        nombresEvaluadores[r.Servicio]
+
+}));
+
+// ==========================================
+// 04. DIAGNÓSTICO DE REGISTROS
+// ==========================================
+
+console.log(
+    '[PE1167] Registros originales:',
+    datosOriginales.length
+);
+
+console.log(
+    '[PE1167] Registros de autocontrol:',
+    registrosAutocontrol.length
+);
+
+console.log(
+    '[PE1167] Personal del servicio:',
+    registrosPersonalServicio.length
+);
+
+console.log(
+    '[PE1167] Servicios autorizados:',
+    registrosServicios.length
+);
+
+console.log(
+    '[PE1167] Evaluador del mismo servicio:',
+    all.length
+);
+
+if (!all.length) {
+
+    console.warn(
+        '[PE1167] Ningún registro cumple todas las condiciones.'
+    );
+
+}
+
+// ==========================================
+// 05. ETIQUETAS
+// ==========================================
+
+const bradenLabels = {
+
+    Percepcion_Sensorial: 'Percepción sensorial',
+
+    Humedad: 'Humedad',
+
+    Actividad_Fisica: 'Actividad física',
+
+    Movilidad: 'Movilidad',
+
+    Nutricion: 'Nutrición',
+
+    Friccion: 'Fricción y deslizamiento',
+
+    Total_Braden: 'Total riesgo LPP - Escala Braden'
+
+};
+
+const labels = {
+
+    ...(window.PE1167_LABELS || {}),
+
+    ...bradenLabels
+
+};
+
+// ==========================================
+// 06. CRITERIOS DE ADHERENCIA PE-ID-01
 // ==========================================
 
 const criteriosAdherencia = [
+
     'Criterio_N',
     'Criterio_O',
     'Criterio_P',
@@ -49,22 +237,27 @@ const criteriosAdherencia = [
     'Criterio_AD',
     'Criterio_AE',
     'Criterio_AF'
+
 ];
 
 const positivos = new Set([
+
     'yes',
     'checked',
     'check',
     'si'
+
 ]);
 
 const negativos = new Set([
+
     'no',
     'unchecked'
+
 ]);
 
 // ==========================================
-// 02. FÓRMULA DE ADHERENCIA
+// 07. FÓRMULA DE ADHERENCIA
 // ==========================================
 
 function calcularAdherencia(
@@ -80,11 +273,7 @@ function calcularAdherencia(
 
         for (const k of criterios) {
 
-            const v = String(r[k] ?? '')
-                .trim()
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '');
+            const v = normalizarTexto(r[k]);
 
             if (positivos.has(v)) {
 
@@ -125,7 +314,7 @@ function calcularAdherencia(
 }
 
 // ==========================================
-// 03. FORMATO DE ADHERENCIA
+// 08. FORMATO DE ADHERENCIA
 // ==========================================
 
 function formatoAdherencia(a) {
@@ -135,13 +324,15 @@ function formatoAdherencia(a) {
         ? 'Sin evaluaciones'
 
         : a.porcentaje.toLocaleString('es-CO', {
+
             maximumFractionDigits: 2
+
         }) + '%';
 
 }
 
 // ==========================================
-// 04. GRÁFICAS DE ADHERENCIA
+// 09. GRÁFICAS DE ADHERENCIA
 // ==========================================
 
 function renderAdherencia(items) {
@@ -187,7 +378,7 @@ function renderAdherencia(items) {
 }
 
 // ==========================================
-// 05. ADHERENCIA MENSUAL
+// 10. ADHERENCIA MENSUAL
 // ==========================================
 
 function adherenciaMensual(d) {
@@ -240,7 +431,7 @@ function adherenciaMensual(d) {
 }
 
 // ==========================================
-// 06. GRUPOS DE VARIABLES
+// 11. GRUPOS DE VARIABLES
 // ==========================================
 
 const groups = {
@@ -274,7 +465,7 @@ const groups = {
 
         [
             'Personal_Diligencia',
-            'Personal que diligencia'
+            'Personal del mismo servicio'
         ],
 
         [
@@ -425,7 +616,9 @@ const groups = {
 
 let tab = 'general';
 
-const dataKeys = Object.keys(all[0] || {}).filter(
+const dataKeys = Object.keys(
+    all[0] || datosOriginales[0] || {}
+).filter(
 
     k => k.startsWith('Criterio_') ||
 
@@ -439,18 +632,20 @@ const dataKeys = Object.keys(all[0] || {}).filter(
 );
 
 // ==========================================
-// 07. OPCIONES DE FILTROS
+// 12. OPCIONES DE FILTROS
 // ==========================================
 
-function options(id, key) {
+function options(id, key, registros = all) {
 
     const values = [
 
         ...new Set(
-            all.map(r => r[key]).filter(Boolean)
+            registros.map(r => r[key]).filter(Boolean)
         )
 
     ].sort();
+
+    const anterior = $(id).value;
 
     $(id).innerHTML =
 
@@ -464,14 +659,54 @@ function options(id, key) {
 
         ).join('');
 
+    if (values.includes(anterior)) {
+
+        $(id).value = anterior;
+
+    }
+
 }
 
-options('control', 'Tipo_Control');
+// ==========================================
+// 13. AUTOCONTROL FIJO
+// ==========================================
 
-options('evaluator', 'Evaluador_Autocontrol');
+function iniciarControl() {
+
+    $('control').innerHTML =
+
+        '<option value="Autocontrol">Autocontrol</option>';
+
+    $('control').value = 'Autocontrol';
+
+    $('control').disabled = true;
+
+}
 
 // ==========================================
-// 08. FILTRAR REGISTROS
+// 14. EVALUADORES SEGÚN SERVICIO
+// ==========================================
+
+function refreshEvaluators() {
+
+    const servicio = $('service').value;
+
+    const registros = all.filter(r =>
+
+        !servicio || r.Servicio === servicio
+
+    );
+
+    options(
+        'evaluator',
+        'Evaluador_Autocontrol',
+        registros
+    );
+
+}
+
+// ==========================================
+// 15. FILTRAR REGISTROS
 // ==========================================
 
 function rows() {
@@ -480,14 +715,13 @@ function rows() {
 
         services.includes(r.Servicio) &&
 
+        r.Tipo_Control === 'Autocontrol' &&
+
+        r.Personal_Diligencia === 'Personal del Servicio' &&
+
         (
             !$('service').value ||
             r.Servicio === $('service').value
-        ) &&
-
-        (
-            !$('control').value ||
-            r.Tipo_Control === $('control').value
         ) &&
 
         (
@@ -520,7 +754,7 @@ function rows() {
 }
 
 // ==========================================
-// 09. GRÁFICAS DE BARRAS
+// 16. GRÁFICAS DE BARRAS
 // ==========================================
 
 function renderBars(items, showPct = false) {
@@ -591,7 +825,7 @@ function renderBars(items, showPct = false) {
 }
 
 // ==========================================
-// 10. CONTAR RESPUESTAS
+// 17. CONTAR RESPUESTAS
 // ==========================================
 
 function counts(d, key) {
@@ -619,7 +853,7 @@ function counts(d, key) {
 }
 
 // ==========================================
-// 11. RESUMEN POR SERVICIO
+// 18. RESUMEN POR SERVICIO
 // ==========================================
 
 function renderService(d) {
@@ -666,22 +900,75 @@ function renderService(d) {
 
     `).join('');
 
+    const a = calcularAdherencia(d);
+
     $('insight').innerHTML = `
 
-        <strong>${d.length} registros</strong>
+        <strong>Indicador PE-ID-01</strong>
 
-        en la selección actual.<br>
+        <br><br>
 
-        Los servicios sin auditorías aparecen con cero.<br>
+        Tipo de control:
+        <strong>Autocontrol</strong>
 
-        Los datos faltantes no se interpretan como incumplimiento.
+        <br>
+
+        Personal:
+        <strong>Personal del mismo servicio</strong>
+
+        <br>
+
+        Evaluador:
+        <strong>Correspondiente al servicio auditado</strong>
+
+        <br><br>
+
+        Registros seleccionados:
+        <strong>${d.length}</strong>
+
+        <br>
+
+        Adherencia:
+        <strong>${formatoAdherencia(a)}</strong>
+
+        <br>
+
+        Numerador:
+        <strong>${a.numerador}</strong>
+
+        <br>
+
+        Denominador:
+        <strong>${a.denominador}</strong>
+
+        <br>
+
+        Incumplimientos:
+        <strong>${a.incumplimientos}</strong>
+
+        <br>
+
+        Respuestas excluidas:
+        <strong>${a.excluidos}</strong>
+
+        <br><br>
+
+        <small>
+
+            No incluye control externo ni personal de calidad.
+
+            Los datos faltantes no se interpretan como incumplimiento.
+
+            Cálculo provisional pendiente de validación institucional.
+
+        </small>
 
     `;
 
 }
 
 // ==========================================
-// 12. RENDERIZAR DASHBOARD
+// 19. RENDERIZAR DASHBOARD
 // ==========================================
 
 function render() {
@@ -696,11 +983,55 @@ function render() {
 
     );
 
-    $('datewarn').textContent = datesMissing
+    let advertencia = '';
 
-        ? 'No hay fechas de auditoría disponibles. El filtro temporal requiere fechas reales.'
+    if (!datosOriginales.length) {
 
-        : '';
+        advertencia =
+            'No se recibieron registros desde REDCap.';
+
+    } else if (!registrosAutocontrol.length) {
+
+        advertencia =
+            'No se encontraron registros de autocontrol.';
+
+    } else if (!registrosPersonalServicio.length) {
+
+        advertencia =
+            'No se encontraron registros de autocontrol realizados por personal del servicio.';
+
+    } else if (!registrosServicios.length) {
+
+        advertencia =
+            'No se encontraron registros de los tres servicios autorizados.';
+
+    } else if (!all.length) {
+
+        advertencia =
+            'No se encontraron registros cuyo evaluador corresponda al servicio auditado.';
+
+    } else if (datesMissing) {
+
+        advertencia =
+            'No hay fechas de auditoría disponibles.';
+
+    } else if (
+        $('from').value &&
+        $('to').value &&
+        $('from').value > $('to').value
+    ) {
+
+        advertencia =
+            'La fecha inicial no puede ser posterior a la fecha final.';
+
+    } else if (!d.length) {
+
+        advertencia =
+            'No hay registros para los filtros seleccionados.';
+
+    }
+
+    $('datewarn').textContent = advertencia;
 
     $('apps').textContent = new Set(
 
@@ -712,7 +1043,7 @@ function render() {
 
     let foot =
 
-        'Los vacíos no se consideran automáticamente incumplimientos. Las respuestas No aplica se conservan separadas.';
+        'Solo se incluyen autocontroles del personal del mismo servicio. Los datos vacíos no se consideran automáticamente incumplimientos.';
 
     // ======================================
     // CÁLCULO GENERAL DE ADHERENCIA
@@ -746,6 +1077,8 @@ function render() {
         'Cálculo provisional: criterios cumplidos / ' +
 
         'criterios evaluados × 100. ' +
+
+        'Únicamente autocontrol del personal del mismo servicio. ' +
 
         'Pendiente de validación institucional.';
 
@@ -910,7 +1243,7 @@ function render() {
 
         foot =
 
-            'Se cuentan aplicaciones distintas por mes, no pacientes únicos.';
+            'Se cuentan aplicaciones distintas de autocontrol por mes, no pacientes únicos.';
 
     }
 
@@ -944,7 +1277,7 @@ function render() {
 
         foot =
 
-            'Comparación de listas aplicadas; no equivale a adherencia.';
+            'Comparación de listas de autocontrol aplicadas; no equivale a adherencia.';
 
     }
 
@@ -1374,7 +1707,31 @@ function render() {
 
             foot =
 
-                'Los tres servicios se muestran en el selector. Un servicio sin registros tiene conteo cero.';
+                'Solo se incluyen Salas de Cirugía, UCI y Hospitalización.';
+
+        }
+
+        if (key === 'Tipo_Control') {
+
+            foot =
+
+                'Solo se incluyen registros de Autocontrol.';
+
+        }
+
+        if (key === 'Personal_Diligencia') {
+
+            foot =
+
+                'Solo se incluyen registros diligenciados por personal del servicio.';
+
+        }
+
+        if (key === 'Evaluador_Autocontrol') {
+
+            foot =
+
+                'El evaluador debe corresponder al mismo servicio auditado.';
 
         }
 
@@ -1396,7 +1753,7 @@ function render() {
 
     $('chartdesc').textContent =
 
-        'Distribución según los filtros seleccionados';
+        'Autocontrol realizado por personal del mismo servicio';
 
     // ======================================
     // TABLA DE REGISTROS
@@ -1470,7 +1827,7 @@ function render() {
 
                 <td>
 
-                    ${esc(r.Tipo_Control)}
+                    Autocontrol
 
                 </td>
 
@@ -1499,7 +1856,7 @@ function render() {
 }
 
 // ==========================================
-// 13. TÍTULOS DE LAS SECCIONES
+// 20. TÍTULOS DE LAS SECCIONES
 // ==========================================
 
 const titles = {
@@ -1508,7 +1865,7 @@ const titles = {
 
         'Adherencia por mes',
 
-        'Seguimiento temporal del indicador PE-ID-01'
+        'Seguimiento mensual del autocontrol PE-ID-01'
 
     ],
 
@@ -1524,7 +1881,7 @@ const titles = {
 
         'Resumen general',
 
-        'Aplicaciones y caracterización de las auditorías'
+        'Autocontrol asistencial realizado por personal del mismo servicio'
 
     ],
 
@@ -1563,10 +1920,12 @@ const titles = {
 };
 
 // ==========================================
-// 14. CAMBIO DE PESTAÑAS
+// 21. CAMBIO DE PESTAÑAS
 // ==========================================
 
 function setTab(t) {
+
+    if (!groups[t]) return;
 
     tab = t;
 
@@ -1590,7 +1949,7 @@ function setTab(t) {
 
         <option value="${esc(k)}">
 
-            ${esc(l)}
+            ${esc(l || labels[k] || k)}
 
         </option>
 
@@ -1601,7 +1960,7 @@ function setTab(t) {
 }
 
 // ==========================================
-// 15. EVENTOS DE NAVEGACIÓN
+// 22. EVENTOS DE NAVEGACIÓN
 // ==========================================
 
 document.querySelectorAll('[data-tab]').forEach(b => {
@@ -1617,14 +1976,18 @@ document.querySelectorAll('[data-tab]').forEach(b => {
 });
 
 // ==========================================
-// 16. EVENTOS DE FILTROS
+// 23. EVENTOS DE FILTROS
 // ==========================================
 
+$('service').addEventListener('change', () => {
+
+    refreshEvaluators();
+
+    render();
+
+});
+
 [
-
-    'service',
-
-    'control',
 
     'evaluator',
 
@@ -1649,7 +2012,7 @@ document.querySelectorAll('[data-tab]').forEach(b => {
 });
 
 // ==========================================
-// 17. LIMPIAR FILTROS
+// 24. LIMPIAR FILTROS
 // ==========================================
 
 $('clear').addEventListener('click', () => {
@@ -1657,8 +2020,6 @@ $('clear').addEventListener('click', () => {
     [
 
         'service',
-
-        'control',
 
         'evaluator',
 
@@ -1674,13 +2035,36 @@ $('clear').addEventListener('click', () => {
 
     });
 
+    iniciarControl();
+
+    refreshEvaluators();
+
     render();
 
 });
 
 // ==========================================
-// 18. EXPORTACIÓN CSV
+// 25. EXPORTACIÓN CSV
 // ==========================================
+
+function csvCell(valor) {
+
+    let v = String(valor ?? '');
+
+    // Evitar interpretación de fórmulas en Excel.
+
+    if (
+        /^\s*[=+\-@]/.test(v) ||
+        /^[\t\r\n]/.test(v)
+    ) {
+
+        v = "'" + v;
+
+    }
+
+    return '"' + v.replace(/"/g, '""') + '"';
+
+}
 
 $('export').addEventListener('click', () => {
 
@@ -1722,11 +2106,7 @@ $('export').addEventListener('click', () => {
 
     .map(row =>
 
-        row.map(x =>
-
-            '"' + String(x).replace(/"/g, '""') + '"'
-
-        ).join(';')
+        row.map(csvCell).join(';')
 
     )
 
@@ -1750,16 +2130,28 @@ $('export').addEventListener('click', () => {
 
     a.href = url;
 
-    a.download = 'PE1167_datos_filtrados.csv';
+    a.download = 'PE1167_autocontrol_mismo_servicio.csv';
+
+    document.body.appendChild(a);
 
     a.click();
 
-    URL.revokeObjectURL(url);
+    a.remove();
+
+    setTimeout(() => {
+
+        URL.revokeObjectURL(url);
+
+    }, 1000);
 
 });
 
 // ==========================================
-// 19. INICIAR DASHBOARD
+// 26. INICIAR DASHBOARD
 // ==========================================
+
+iniciarControl();
+
+refreshEvaluators();
 
 setTab('general');

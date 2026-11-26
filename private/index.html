@@ -3,12 +3,216 @@
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>PE-ID-01 · Panel de calidad</title>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Clínica de Heridas | PE-ID-01</title>
+
+    <link rel="icon" type="image/png" href="/logo.png">
 
     <link rel="stylesheet" href="./styles.css">
+
+    <!-- Ajustes específicos del dashboard -->
+
+    <style>
+
+        .filters {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(175px, 1fr));
+
+            align-items: end;
+
+            gap: 14px;
+
+        }
+
+        .filters label {
+
+            min-width: 0;
+
+        }
+
+        .filters select,
+        .filters input {
+
+            width: 100%;
+
+            min-width: 0;
+
+            box-sizing: border-box;
+
+        }
+
+        .filters select:disabled {
+
+            background: #eef3f7;
+
+            color: #38536b;
+
+            opacity: 1;
+
+            font-weight: 600;
+
+            cursor: not-allowed;
+
+            border-color: #dbe4ec;
+
+        }
+
+        .filter-fixed-note {
+
+            display: block;
+
+            font-size: 10px;
+
+            color: #748598;
+
+            margin-top: 5px;
+
+            font-weight: 400;
+
+        }
+
+        .filter-fixed {
+
+            align-self: start;
+
+        }
+
+        .filters .reset {
+
+            min-height: 40px;
+
+        }
+
+        .kpis {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 16px;
+
+        }
+
+        .kpis article {
+
+            min-width: 0;
+
+        }
+
+        .scope-info {
+
+            display: flex;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+
+            margin: 12px 0 18px;
+
+            font-size: 12px;
+
+            color: #52677c;
+
+        }
+
+        .scope-tag {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 6px 10px;
+
+            background: #edf3f7;
+
+            border: 1px solid #dce6ee;
+
+            border-radius: 6px;
+
+            color: #38536b;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+        }
+
+        .scope-dot {
+
+            width: 7px;
+
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #1683ad;
+
+        }
+
+        @media (max-width: 600px) {
+
+            .filters {
+
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+                gap: 10px;
+
+            }
+
+            .kpis {
+
+                gap: 10px;
+
+            }
+
+            .kpis article {
+
+                padding: 14px;
+
+            }
+
+            .scope-info {
+
+                gap: 6px;
+
+            }
+
+        }
+
+        @media (max-width: 380px) {
+
+            .filters {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .kpis {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+    </style>
+
 </head>
 
 <body>
@@ -22,68 +226,136 @@
         <aside class="sidebar">
 
             <!-- Identidad institucional -->
+
             <div class="brand">
 
-                <img src="/logo.png" alt="Logo HUN" class="brand-logo">
+                <img
+                    src="/logo.png"
+                    alt="Logo Hospital Universitario Nacional"
+                    class="brand-logo"
+                >
 
-               
             </div>
 
             <div class="side-caption">
-                PANEL DE ANÁLISIS
+
+                CLÍNICA DE HERIDAS
+
             </div>
 
             <!-- Menú de navegación -->
+
             <nav id="menu">
 
-                <button data-tab="general" class="active">
+                <button
+                    type="button"
+                    data-tab="general"
+                    class="active"
+                >
+
                     <span>▦</span>
+
                     Resumen general
+
                 </button>
 
-                <button data-tab="mensual">
+                <button
+                    type="button"
+                    data-tab="mensual"
+                >
+
                     <span>▥</span>
+
                     Adherencia por mes
+
                 </button>
 
-                <button data-tab="comparativo">
+                <button
+                    type="button"
+                    data-tab="comparativo"
+                >
+
                     <span>⇄</span>
+
                     Comparativo de servicios
+
                 </button>
 
-                <button data-tab="riesgo">
+                <button
+                    type="button"
+                    data-tab="riesgo"
+                >
+
                     <span>◈</span>
+
                     Valoración del riesgo
+
                 </button>
 
-                <button data-tab="postural">
+                <button
+                    type="button"
+                    data-tab="postural"
+                >
+
                     <span>↗</span>
+
                     Cambios posturales
+
                 </button>
 
-                <button data-tab="prevencion">
+                <button
+                    type="button"
+                    data-tab="prevencion"
+                >
+
                     <span>✚</span>
+
                     Prevención y cuidado
+
                 </button>
 
-                <button data-tab="calidad">
+                <button
+                    type="button"
+                    data-tab="calidad"
+                >
+
                     <span>◫</span>
+
                     Calidad de datos
+
                 </button>
 
             </nav>
 
-            <!-- Estado de conexión -->
+            <!-- Información del proyecto -->
+
             <div class="side-bottom">
+
                 <span class="dot"></span>
-                Datos locales · PE 1167
+
+                Proyecto PE 1167
+
                 <br>
-                <small>Sin conexión automática</small>
-                <button type="button" id="logout" class="logout-btn">Cerrar sesión</button>
+
+                <small>
+
+                    Indicador PE-ID-01
+
+                </small>
+
+                <button
+                    type="button"
+                    id="logout"
+                    class="logout-btn"
+                >
+
+                    Cerrar sesión
+
+                </button>
+
             </div>
 
         </aside>
-
 
         <!-- ========================================
              2. CONTENIDO PRINCIPAL
@@ -92,152 +364,282 @@
         <main>
 
             <!-- Encabezado principal -->
+
             <header>
 
                 <div>
+
                     <div class="eyebrow">
-                        INDICADORES DE CALIDAD / PE 1167
+
+                        CLÍNICA DE HERIDAS / PE 1167
+
                     </div>
 
-                    <h1>Prevención de lesiones por presión</h1>
+                    <h1>
+
+                        Prevención de lesiones por presión
+
+                    </h1>
 
                     <p>
+
                         Seguimiento del paquete instruccional ·
                         Indicador PE-ID-01
+
                     </p>
+
                 </div>
 
-                <button class="export" id="export">
+                <button
+                    type="button"
+                    class="export"
+                    id="export"
+                >
+
                     ↓ Exportar CSV
+
                 </button>
 
             </header>
 
-
             <!-- ========================================
-                 3. FILTROS DEL DASHBOARD
+                 3. ALCANCE DEL DASHBOARD
             ========================================= -->
 
-            <section class="filters">
+            <div class="scope-info">
+
+                <span class="scope-tag">
+
+                    <span class="scope-dot"></span>
+
+                    Autocontrol asistencial
+
+                </span>
+
+                <span class="scope-tag">
+
+                    Personal del mismo servicio
+
+                </span>
+
+                <span class="scope-tag">
+
+                    Prevención de LPP
+
+                </span>
+
+            </div>
+
+            <!-- ========================================
+                 4. FILTROS DEL DASHBOARD
+            ========================================= -->
+
+            <section
+                class="filters"
+                aria-label="Filtros del dashboard"
+            >
 
                 <!-- Filtro por servicio -->
-                <label>
+
+                <label for="service">
+
                     Servicio
 
                     <select id="service">
-                        <option value="">Todos los servicios</option>
-                        <option>Salas de Cirugía</option>
-                        <option>UCI</option>
-                        <option>Hospitalización</option>
+
+                        <option value="">
+
+                            Todos los servicios
+
+                        </option>
+
+                        <option value="Salas de Cirugía">
+
+                            Salas de Cirugía
+
+                        </option>
+
+                        <option value="UCI">
+
+                            UCI
+
+                        </option>
+
+                        <option value="Hospitalización">
+
+                            Hospitalización
+
+                        </option>
+
                     </select>
+
                 </label>
 
-                <!-- Filtro por tipo de control -->
-                <label>
+                <!-- Tipo de control fijo -->
+
+                <label for="control">
+
                     Tipo de control
-                    <select id="control"></select>
+
+                    <select id="control" disabled>
+
+                        <option value="Autocontrol">
+
+                            Autocontrol
+
+                        </option>
+
+                    </select>
+
+                </label>
+
+                <!-- Personal del mismo servicio -->
+
+                <label for="personal">
+
+                    Personal que diligencia
+
+                    <select id="personal" disabled>
+
+                        <option value="Personal del Servicio">
+
+                            Personal del mismo servicio
+
+                        </option>
+
+                    </select>
+
                 </label>
 
                 <!-- Filtro por evaluador -->
-                <label>
-                    Evaluador
-                    <select id="evaluator"></select>
+
+                <label for="evaluator">
+
+                    Evaluador de autocontrol
+
+                    <select id="evaluator">
+
+                        <option value="">
+
+                            Todos los evaluadores
+
+                        </option>
+
+                    </select>
+
                 </label>
 
                 <!-- Fecha inicial -->
-                <label>
+
+                <label for="from">
+
                     Desde
-                    <input id="from" type="date">
+
+                    <input
+                        id="from"
+                        type="date"
+                    >
+
                 </label>
 
                 <!-- Fecha final -->
-                <label>
+
+                <label for="to">
+
                     Hasta
-                    <input id="to" type="date">
+
+                    <input
+                        id="to"
+                        type="date"
+                    >
+
                 </label>
 
                 <!-- Restablecer filtros -->
-                <button id="clear" class="reset">
-                    Limpiar
+
+                <button
+                    type="button"
+                    id="clear"
+                    class="reset"
+                >
+
+                    Limpiar filtros
+
                 </button>
 
             </section>
 
-            <!-- Advertencias relacionadas con fechas -->
-            <div id="datewarn" class="warning"></div>
+            <!-- Advertencias de datos y filtros -->
 
+            <div
+                id="datewarn"
+                class="warning"
+                role="status"
+                aria-live="polite"
+            ></div>
 
             <!-- ========================================
-                 4. INDICADORES PRINCIPALES (KPIs)
+                 5. INDICADORES PRINCIPALES
             ========================================= -->
 
             <section class="kpis">
 
-                <!-- Pacientes únicos -->
+                <!-- Listas de chequeo aplicadas -->
+
                 <article>
 
                     <div class="kpi-label">
-                        Pacientes únicos
-                        <span>♙</span>
+
+                        Listas aplicadas
+
+                        <span>▤</span>
+
                     </div>
 
-                    <strong>—</strong>
+                    <strong id="apps">
+
+                        —
+
+                    </strong>
 
                     <small>
-                        Requiere identificador seudonimizado
+
+                        Aplicaciones distintas de autocontrol
+
                     </small>
 
                 </article>
 
-                <!-- Listas de chequeo aplicadas -->
-                <article>
-
-                    <div class="kpi-label">
-                        Listas aplicadas
-                        <span>▤</span>
-                    </div>
-
-                    <strong id="apps">—</strong>
-
-                    <small>Aplicaciones distintas</small>
-
-                </article>
-
                 <!-- Registros disponibles -->
+
                 <article>
 
                     <div class="kpi-label">
+
                         Registros disponibles
+
                         <span>▥</span>
+
                     </div>
 
-                    <strong id="records">—</strong>
+                    <strong id="records">
 
-                    <small>Auditorías filtradas</small>
+                        —
 
-                </article>
-
-                <!-- Indicador de adherencia -->
-                <article>
-
-                    <div class="kpi-label">
-                        Adherencia PE-ID-01
-                        <span>◎</span>
-                    </div>
-
-                    <strong>— %</strong>
+                    </strong>
 
                     <small>
-                        Fórmula institucional pendiente
+
+                        Autocontroles del mismo servicio
+
                     </small>
 
                 </article>
 
             </section>
 
-
             <!-- ========================================
-                 5. ENCABEZADO DE LA SECCIÓN ACTIVA
+                 6. ENCABEZADO DE LA SECCIÓN ACTIVA
             ========================================= -->
 
             <div class="section-heading">
@@ -245,29 +647,36 @@
                 <div>
 
                     <div class="eyebrow">
+
                         EXPLORACIÓN DE RESULTADOS
+
                     </div>
 
                     <h2 id="sectiontitle">
+
                         Resumen general
+
                     </h2>
 
                     <p id="sectiondesc">
-                        Indicadores generales del proyecto
+
+                        Autocontrol asistencial realizado
+                        por personal del mismo servicio
+
                     </p>
 
                 </div>
 
             </div>
 
-
             <!-- ========================================
-                 6. GRÁFICAS Y ANÁLISIS DE RESULTADOS
+                 7. GRÁFICAS Y ANÁLISIS DE RESULTADOS
             ========================================= -->
 
             <section class="dashboard-grid">
 
                 <!-- Panel principal de gráficas -->
+
                 <article class="panel chart-panel">
 
                     <div class="panel-head">
@@ -275,44 +684,69 @@
                         <div>
 
                             <h3 id="charttitle">
-                                Aplicaciones por servicio
+
+                                Adherencia general PE-ID-01
+
                             </h3>
 
                             <p id="chartdesc">
-                                Distribución de respuestas de la
-                                variable seleccionada
+
+                                Autocontrol realizado por
+                                personal del mismo servicio
+
                             </p>
 
                         </div>
 
                         <!-- Selector de variables -->
-                        <label class="pick">
+
+                        <label
+                            class="pick"
+                            for="variable"
+                        >
+
                             Variable
+
                             <select id="variable"></select>
+
                         </label>
 
                     </div>
 
                     <!-- Contenedor dinámico de la gráfica -->
-                    <div id="visual" class="visual"></div>
 
-                    <!-- Información adicional de la gráfica -->
-                    <div id="foot" class="foot"></div>
+                    <div
+                        id="visual"
+                        class="visual"
+                    ></div>
+
+                    <!-- Información adicional -->
+
+                    <div
+                        id="foot"
+                        class="foot"
+                    ></div>
 
                 </article>
 
-
                 <!-- Panel de resumen por servicio -->
+
                 <article class="panel summary-panel">
 
                     <div class="panel-head">
 
                         <div>
 
-                            <h3>Vista por servicio</h3>
+                            <h3>
+
+                                Vista por servicio
+
+                            </h3>
 
                             <p>
-                                Distribución de registros filtrados
+
+                                Distribución de autocontroles
+
                             </p>
 
                         </div>
@@ -320,64 +754,113 @@
                     </div>
 
                     <!-- Barras comparativas de servicios -->
-                    <div id="servicebars" class="servicebars"></div>
+
+                    <div
+                        id="servicebars"
+                        class="servicebars"
+                    ></div>
 
                     <div class="divider"></div>
 
                     <!-- Interpretación de resultados -->
-                    <h4>Lectura rápida</h4>
 
-                    <div id="insight" class="insight"></div>
+                    <h4>
+
+                        Lectura rápida
+
+                    </h4>
+
+                    <div
+                        id="insight"
+                        class="insight"
+                    ></div>
 
                 </article>
 
             </section>
 
-
             <!-- ========================================
-                 7. DETALLE DE AUDITORÍAS
+                 8. DETALLE DE AUTOCONTROLES
             ========================================= -->
 
             <details class="details">
 
                 <summary>
-                    Ver detalle de auditorías
+
+                    Ver detalle de autocontroles
+
                     <span>⌄</span>
+
                 </summary>
 
                 <div class="detail-inner">
 
                     <!-- Herramientas de búsqueda -->
+
                     <div class="detail-tools">
 
                         <p>
-                            Registros de análisis sin número de
-                            identificación personal
+
+                            Registros de autocontrol del
+                            personal del mismo servicio.
+
                         </p>
 
                         <input
                             id="search"
+                            type="search"
+                            aria-label="Buscar registros"
                             placeholder="Buscar aplicación, servicio o evaluador…"
                         >
 
                     </div>
 
                     <!-- Tabla de resultados -->
+
                     <div class="tablewrap">
 
                         <table>
 
                             <thead>
+
                                 <tr>
-                                    <th>Aplicación</th>
-                                    <th>Servicio</th>
-                                    <th>Tipo de control</th>
-                                    <th>Evaluador</th>
-                                    <th>Respuesta seleccionada</th>
+
+                                    <th>
+
+                                        Aplicación
+
+                                    </th>
+
+                                    <th>
+
+                                        Servicio
+
+                                    </th>
+
+                                    <th>
+
+                                        Tipo de control
+
+                                    </th>
+
+                                    <th>
+
+                                        Evaluador de autocontrol
+
+                                    </th>
+
+                                    <th>
+
+                                        Respuesta seleccionada
+
+                                    </th>
+
                                 </tr>
+
                             </thead>
 
                             <!-- Registros generados dinámicamente -->
+
                             <tbody id="tbody"></tbody>
 
                         </table>
@@ -388,36 +871,43 @@
 
             </details>
 
-
             <!-- ========================================
-                 8. PIE DE PÁGINA
+                 9. PIE DE PÁGINA
             ========================================= -->
 
             <footer>
-                PE 1167 · Versión 5 ·
-                Resultados exploratorios, no indicador oficial validado
+
+                Hospital Universitario Nacional de Colombia ·
+                Clínica de Heridas · PE 1167 ·
+                Indicador PE-ID-01 ·
+                Cálculo de adherencia pendiente de validación institucional
+
             </footer>
 
         </main>
 
     </div>
 
-
     <!-- ========================================
-         9. ARCHIVOS JAVASCRIPT
+         10. ARCHIVOS JAVASCRIPT
     ========================================= -->
 
-    <!-- Base de datos local -->
+    <!-- Datos del dashboard -->
+
     <script src="datos.js"></script>
 
     <!-- Etiquetas y nombres de variables -->
+
     <script src="etiquetas.js"></script>
 
     <!-- Lógica principal del dashboard -->
+
     <script src="app.js"></script>
 
+    <!-- Cierre de sesión -->
+
     <script src="/logout.js"></script>
+
 </body>
 
 </html>
-
