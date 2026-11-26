@@ -3,14 +3,10 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
-
-    <meta name="robots" content="noindex, nofollow">
-
-    <title>Clínica de Heridas · PE-ID-01 | HUN</title>
+    <title>PE-ID-01 · Panel de calidad</title>
 
     <link rel="stylesheet" href="./styles.css">
 </head>
@@ -19,236 +15,181 @@
 
     <div class="shell">
 
-        <!-- MENÚ LATERAL -->
+        <!-- ========================================
+             1. MENÚ LATERAL
+        ========================================= -->
 
         <aside class="sidebar">
 
+            <!-- Identidad institucional -->
             <div class="brand">
 
-                <img
-                    src="../public/logo.png"
-                    alt="Logo HUN"
-                    class="brand-logo"
-                >
+                <img src="/logo.png" alt="Logo HUN" class="brand-logo">
 
+               
             </div>
 
             <div class="side-caption">
-                CLÍNICA DE HERIDAS
+                PANEL DE ANÁLISIS
             </div>
 
+            <!-- Menú de navegación -->
             <nav id="menu">
 
-                <button type="button"
-                        data-tab="general"
-                        class="active">
+                <button data-tab="general" class="active">
                     <span>▦</span>
                     Resumen general
                 </button>
 
-                <button type="button"
-                        data-tab="mensual">
+                <button data-tab="mensual">
                     <span>▥</span>
                     Adherencia por mes
                 </button>
 
-                <button type="button"
-                        data-tab="comparativo">
+                <button data-tab="comparativo">
                     <span>⇄</span>
                     Comparativo de servicios
                 </button>
 
-                <button type="button"
-                        data-tab="riesgo">
+                <button data-tab="riesgo">
                     <span>◈</span>
                     Valoración del riesgo
                 </button>
 
-                <button type="button"
-                        data-tab="postural">
+                <button data-tab="postural">
                     <span>↗</span>
                     Cambios posturales
                 </button>
 
-                <button type="button"
-                        data-tab="prevencion">
+                <button data-tab="prevencion">
                     <span>✚</span>
                     Prevención y cuidado
                 </button>
 
-                <button type="button"
-                        data-tab="calidad">
+                <button data-tab="calidad">
                     <span>◫</span>
                     Calidad de datos
                 </button>
 
             </nav>
 
+            <!-- Estado de conexión -->
             <div class="side-bottom">
-
-                <button type="button"
-                        id="logout"
-                        class="logout-btn">
-                    ↪ Cerrar sesión
-                </button>
-
-                <small>
-                    PE 1167 · Fuente REDCap
-                </small>
-
+                <span class="dot"></span>
+                Datos locales · PE 1167
+                <br>
+                <small>Sin conexión automática</small>
+                <button type="button" id="logout" class="logout-btn">Cerrar sesión</button>
             </div>
 
         </aside>
 
-        <!-- CONTENIDO PRINCIPAL -->
+
+        <!-- ========================================
+             2. CONTENIDO PRINCIPAL
+        ========================================= -->
 
         <main>
 
+            <!-- Encabezado principal -->
             <header>
 
                 <div>
-
                     <div class="eyebrow">
-                        CLÍNICA DE HERIDAS / PE 1167
+                        INDICADORES DE CALIDAD / PE 1167
                     </div>
 
-                    <h1>
-                        Prevención de lesiones por presión
-                    </h1>
+                    <h1>Prevención de lesiones por presión</h1>
 
                     <p>
-                        Seguimiento de autocontrol asistencial ·
+                        Seguimiento del paquete instruccional ·
                         Indicador PE-ID-01
                     </p>
-
                 </div>
 
-                <button type="button"
-                        class="export"
-                        id="export">
+                <button class="export" id="export">
                     ↓ Exportar CSV
                 </button>
 
             </header>
 
-            <!-- FILTROS -->
+
+            <!-- ========================================
+                 3. FILTROS DEL DASHBOARD
+            ========================================= -->
 
             <section class="filters">
 
-                <label for="service">
-
-                    Servicio asistencial
+                <!-- Filtro por servicio -->
+                <label>
+                    Servicio
 
                     <select id="service">
-
-                        <option value="">
-                            Todos los servicios
-                        </option>
-
-                        <option value="Salas de Cirugía">
-                            Salas de Cirugía
-                        </option>
-
-                        <option value="UCI">
-                            UCI
-                        </option>
-
-                        <option value="Hospitalización">
-                            Hospitalización
-                        </option>
-
+                        <option value="">Todos los servicios</option>
+                        <option>Salas de Cirugía</option>
+                        <option>UCI</option>
+                        <option>Hospitalización</option>
                     </select>
-
                 </label>
 
-                <!-- TIPO DE CONTROL FIJO -->
-
-                <label for="control">
-
+                <!-- Filtro por tipo de control -->
+                <label>
                     Tipo de control
-
-                    <select id="control" disabled>
-
-                        <option value="Autocontrol" selected>
-                            Autocontrol
-                        </option>
-
-                    </select>
-
+                    <select id="control"></select>
                 </label>
 
-                <!-- PERSONAL DE AUTOCONTROL -->
-
-                <label for="evaluator">
-
-                    Personal de autocontrol
-
-                    <select id="evaluator">
-
-                        <option value="">
-                            Todo el personal
-                        </option>
-
-                    </select>
-
+                <!-- Filtro por evaluador -->
+                <label>
+                    Evaluador
+                    <select id="evaluator"></select>
                 </label>
 
-                <!-- FECHA INICIAL -->
-
-                <label for="from">
-
+                <!-- Fecha inicial -->
+                <label>
                     Desde
-
-                    <input id="from"
-                           type="date">
-
+                    <input id="from" type="date">
                 </label>
 
-                <!-- FECHA FINAL -->
-
-                <label for="to">
-
+                <!-- Fecha final -->
+                <label>
                     Hasta
-
-                    <input id="to"
-                           type="date">
-
+                    <input id="to" type="date">
                 </label>
 
-                <button type="button"
-                        id="clear"
-                        class="reset">
+                <!-- Restablecer filtros -->
+                <button id="clear" class="reset">
                     Limpiar
                 </button>
 
             </section>
 
-            <div id="datewarn"
-                 class="warning"
-                 role="status">
-            </div>
+            <!-- Advertencias relacionadas con fechas -->
+            <div id="datewarn" class="warning"></div>
 
-            <!-- INDICADORES PRINCIPALES -->
+
+            <!-- ========================================
+                 4. INDICADORES PRINCIPALES (KPIs)
+            ========================================= -->
 
             <section class="kpis">
 
-                <article class="kpi-primary">
+                <!-- Pacientes únicos -->
+                <article>
 
                     <div class="kpi-label">
-                        Adherencia PE-ID-01
-                        <span>◎</span>
+                        Pacientes únicos
+                        <span>♙</span>
                     </div>
 
-                    <strong id="adherenceKpi">
-                        —
-                    </strong>
+                    <strong>—</strong>
 
                     <small>
-                        Adherencia por autocontrol
+                        Requiere identificador seudonimizado
                     </small>
 
                 </article>
 
+                <!-- Listas de chequeo aplicadas -->
                 <article>
 
                     <div class="kpi-label">
@@ -256,156 +197,55 @@
                         <span>▤</span>
                     </div>
 
-                    <strong id="apps">
-                        —
-                    </strong>
+                    <strong id="apps">—</strong>
 
-                    <small>
-                        Aplicaciones de autocontrol
-                    </small>
+                    <small>Aplicaciones distintas</small>
 
                 </article>
 
+                <!-- Registros disponibles -->
                 <article>
 
                     <div class="kpi-label">
-                        Numerador
-                        <span>✓</span>
-                    </div>
-
-                    <strong id="numerator">
-                        —
-                    </strong>
-
-                    <small>
-                        Criterios cumplidos
-                    </small>
-
-                </article>
-
-                <article>
-
-                    <div class="kpi-label">
-                        Denominador
+                        Registros disponibles
                         <span>▥</span>
                     </div>
 
-                    <strong id="denominator">
-                        —
-                    </strong>
+                    <strong id="records">—</strong>
+
+                    <small>Auditorías filtradas</small>
+
+                </article>
+
+                <!-- Indicador de adherencia -->
+                <article>
+
+                    <div class="kpi-label">
+                        Adherencia PE-ID-01
+                        <span>◎</span>
+                    </div>
+
+                    <strong>— %</strong>
 
                     <small>
-                        Criterios evaluados
+                        Fórmula institucional pendiente
                     </small>
 
                 </article>
 
             </section>
 
-            <!-- INFORMACIÓN COMPLEMENTARIA -->
 
-            <div class="overview-note">
-
-                Registros de autocontrol:
-
-                <strong id="records">—</strong>
-
-                · Control externo excluido
-
-                · Cálculo provisional del indicador
-
-            </div>
-
-            <!-- RESUMEN GENERAL -->
-
-            <section id="overview"
-                     class="overview">
-
-                <!-- EVOLUCIÓN MENSUAL -->
-
-                <article class="panel">
-
-                    <div class="panel-head">
-
-                        <div>
-
-                            <h3>
-                                Evolución mensual de adherencia
-                            </h3>
-
-                            <p>
-                                Seguimiento mensual del autocontrol
-                                en prevención de lesiones por presión
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div id="monthlyLine">
-
-                        <div class="empty-state">
-                            Cargando información mensual...
-                        </div>
-
-                    </div>
-
-                </article>
-
-                <!-- COMPARATIVO DE SERVICIOS -->
-
-                <article class="panel">
-
-                    <div class="panel-head">
-
-                        <div>
-
-                            <h3>
-                                Adherencia por servicio
-                            </h3>
-
-                            <p>
-                                Comparativo de autocontrol asistencial
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div id="overviewServices">
-
-                        <div class="empty-state">
-                            Cargando servicios...
-                        </div>
-
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <h3>
-                        Distribución de criterios
-                    </h3>
-
-                    <div id="overviewDonut">
-
-                        <div class="empty-state">
-                            Calculando adherencia...
-                        </div>
-
-                    </div>
-
-                </article>
-
-            </section>
-
-            <!-- ENCABEZADO DE SECCIÓN -->
+            <!-- ========================================
+                 5. ENCABEZADO DE LA SECCIÓN ACTIVA
+            ========================================= -->
 
             <div class="section-heading">
 
                 <div>
 
                     <div class="eyebrow">
-                        ANÁLISIS DE AUTOCONTROL
+                        EXPLORACIÓN DE RESULTADOS
                     </div>
 
                     <h2 id="sectiontitle">
@@ -413,18 +253,21 @@
                     </h2>
 
                     <p id="sectiondesc">
-                        Indicador PE-ID-01 y caracterización
-                        de los registros de autocontrol
+                        Indicadores generales del proyecto
                     </p>
 
                 </div>
 
             </div>
 
-            <!-- ANÁLISIS DETALLADO -->
+
+            <!-- ========================================
+                 6. GRÁFICAS Y ANÁLISIS DE RESULTADOS
+            ========================================= -->
 
             <section class="dashboard-grid">
 
+                <!-- Panel principal de gráficas -->
                 <article class="panel chart-panel">
 
                     <div class="panel-head">
@@ -432,144 +275,109 @@
                         <div>
 
                             <h3 id="charttitle">
-                                Adherencia general PE-ID-01
+                                Aplicaciones por servicio
                             </h3>
 
                             <p id="chartdesc">
-                                Distribución según los filtros
-                                seleccionados
+                                Distribución de respuestas de la
+                                variable seleccionada
                             </p>
 
                         </div>
 
-                        <label class="pick"
-                               for="variable">
-
+                        <!-- Selector de variables -->
+                        <label class="pick">
                             Variable
-
                             <select id="variable"></select>
-
                         </label>
 
                     </div>
 
-                    <div id="visual"
-                         class="visual">
+                    <!-- Contenedor dinámico de la gráfica -->
+                    <div id="visual" class="visual"></div>
 
-                        <div class="empty-state">
-                            Cargando resultados...
-                        </div>
-
-                    </div>
-
-                    <div id="foot"
-                         class="foot">
-                    </div>
+                    <!-- Información adicional de la gráfica -->
+                    <div id="foot" class="foot"></div>
 
                 </article>
 
-                <!-- PANEL SECUNDARIO -->
 
+                <!-- Panel de resumen por servicio -->
                 <article class="panel summary-panel">
 
                     <div class="panel-head">
 
                         <div>
 
-                            <h3>
-                                Vista por servicio
-                            </h3>
+                            <h3>Vista por servicio</h3>
 
                             <p>
-                                Distribución de registros
-                                de autocontrol
+                                Distribución de registros filtrados
                             </p>
 
                         </div>
 
                     </div>
 
-                    <div id="servicebars"
-                         class="servicebars">
-                    </div>
+                    <!-- Barras comparativas de servicios -->
+                    <div id="servicebars" class="servicebars"></div>
 
                     <div class="divider"></div>
 
-                    <h4>
-                        Lectura rápida
-                    </h4>
+                    <!-- Interpretación de resultados -->
+                    <h4>Lectura rápida</h4>
 
-                    <div id="insight"
-                         class="insight">
-                    </div>
+                    <div id="insight" class="insight"></div>
 
                 </article>
 
             </section>
 
-            <!-- DETALLE DE AUTOCONTROL -->
+
+            <!-- ========================================
+                 7. DETALLE DE AUDITORÍAS
+            ========================================= -->
 
             <details class="details">
 
                 <summary>
-
-                    Ver detalle de autocontrol
-
+                    Ver detalle de auditorías
                     <span>⌄</span>
-
                 </summary>
 
                 <div class="detail-inner">
 
+                    <!-- Herramientas de búsqueda -->
                     <div class="detail-tools">
 
                         <p>
-                            Registros de autocontrol
-                            del personal asistencial
+                            Registros de análisis sin número de
+                            identificación personal
                         </p>
 
                         <input
                             id="search"
-                            type="search"
-                            aria-label="Buscar registros de autocontrol"
-                            placeholder="Buscar aplicación, servicio o personal..."
-                            autocomplete="off"
+                            placeholder="Buscar aplicación, servicio o evaluador…"
                         >
 
                     </div>
 
+                    <!-- Tabla de resultados -->
                     <div class="tablewrap">
 
                         <table>
 
                             <thead>
-
                                 <tr>
-
-                                    <th>
-                                        Aplicación
-                                    </th>
-
-                                    <th>
-                                        Servicio asistencial
-                                    </th>
-
-                                    <th>
-                                        Tipo de control
-                                    </th>
-
-                                    <th>
-                                        Personal de autocontrol
-                                    </th>
-
-                                    <th>
-                                        Resultado seleccionado
-                                    </th>
-
+                                    <th>Aplicación</th>
+                                    <th>Servicio</th>
+                                    <th>Tipo de control</th>
+                                    <th>Evaluador</th>
+                                    <th>Respuesta seleccionada</th>
                                 </tr>
-
                             </thead>
 
+                            <!-- Registros generados dinámicamente -->
                             <tbody id="tbody"></tbody>
 
                         </table>
@@ -580,36 +388,36 @@
 
             </details>
 
-            <!-- PIE DE PÁGINA -->
+
+            <!-- ========================================
+                 8. PIE DE PÁGINA
+            ========================================= -->
 
             <footer>
-
-                Clínica de Heridas · PE 1167 · Versión 6.1
-
-                · Hospital Universitario Nacional de Colombia
-
-                · Indicador PE-ID-01
-
-                · Autocontrol asistencial
-
-                · Cálculo pendiente de validación institucional
-
+                PE 1167 · Versión 5 ·
+                Resultados exploratorios, no indicador oficial validado
             </footer>
 
         </main>
 
     </div>
 
-    <!-- ARCHIVOS JAVASCRIPT -->
 
-    <script src="./datos.js"></script>
+    <!-- ========================================
+         9. ARCHIVOS JAVASCRIPT
+    ========================================= -->
 
-    <script src="./etiquetas.js"></script>
+    <!-- Base de datos local -->
+    <script src="datos.js"></script>
 
-    <script src="./app.js"></script>
+    <!-- Etiquetas y nombres de variables -->
+    <script src="etiquetas.js"></script>
+
+    <!-- Lógica principal del dashboard -->
+    <script src="app.js"></script>
 
     <script src="/logout.js"></script>
-
 </body>
 
 </html>
+
