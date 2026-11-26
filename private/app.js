@@ -1,20 +1,7 @@
 
-const all = window.PE1167_DATA || [];
-
-const bradenLabels = {
-    Percepcion_Sensorial: 'Percepción sensorial',
-    Humedad: 'Humedad',
-    Actividad_Fisica: 'Actividad física',
-    Movilidad: 'Movilidad',
-    Nutricion: 'Nutrición',
-    Friccion: 'Fricción y deslizamiento',
-    Total_Braden: 'Total riesgo LPP - Escala Braden'
-};
-
-const labels = {
-    ...(window.PE1167_LABELS || {}),
-    ...bradenLabels
-};
+// ==========================================
+// DASHBOARD PE-ID-01 - HUN
+// ==========================================
 
 const $ = id => document.getElementById(id);
 
@@ -29,13 +16,79 @@ const esc = v => String(v ?? '').replace(
     }[c])
 );
 
+const texto = v => String(v ?? '').trim();
+
+// ==========================================
+// NORMALIZACIÓN DE DATOS REDCAP
+// ==========================================
+
+function normalizarControl(valor) {
+
+    const v = texto(valor).toLowerCase();
+
+    if (v.includes('auto')) {
+        return 'Autocontrol';
+    }
+
+    if (v.includes('extern')) {
+        return 'Control Externo';
+    }
+
+    return texto(valor);
+}
+
+const all = (window.PE1167_DATA || []).map(r => {
+
+    const control = normalizarControl(r.Tipo_Control);
+
+    const autocontrol = texto(r.Evaluador_Autocontrol);
+
+    const externo = texto(r.Evaluador_Externo);
+
+    return {
+        ...r,
+
+        Tipo_Control: control,
+
+        Evaluador: control === 'Control Externo'
+            ? externo
+            : control === 'Autocontrol'
+                ? autocontrol
+                : autocontrol || externo
+    };
+
+});
+
 const services = [
     'Salas de Cirugía',
     'UCI',
     'Hospitalización'
 ];
 
-// CRITERIOS DEL INDICADOR PE-ID-01
+// ==========================================
+// ETIQUETAS
+// ==========================================
+
+const bradenLabels = {
+    Percepcion_Sensorial: 'Percepción sensorial',
+    Humedad: 'Humedad',
+    Actividad_Fisica: 'Actividad física',
+    Movilidad: 'Movilidad',
+    Nutricion: 'Nutrición',
+    Friccion: 'Fricción y deslizamiento',
+    Total_Braden: 'Total riesgo LPP - Escala Braden'
+};
+
+const labels = {
+    ...(window.PE1167_LABELS || {}),
+    ...bradenLabels,
+    Evaluador: 'Evaluador',
+    Evaluador_Externo: 'Evaluador externo'
+};
+
+// ==========================================
+// CRITERIOS DE ADHERENCIA PE-ID-01
+// ==========================================
 
 const criteriosAdherencia = [
     'Criterio_N',
@@ -49,76 +102,18 @@ const criteriosAdherencia = [
     'Criterio_AF'
 ];
 
-// GRUPOS DE VARIABLES
+const positivos = new Set([
+    'yes',
+    'checked',
+    'check',
+    'sí',
+    'si'
+]);
 
-const groups = {
-
-    general: [
-        ['__adherence', 'Adherencia general PE-ID-01'],
-        ['__criteria_adherence', 'Adherencia por criterio'],
-        ['Servicio', 'Aplicaciones por servicio'],
-        ['Tipo_Control', 'Tipo de control'],
-        ['Evaluador_Autocontrol', 'Evaluador autocontrol'],
-        ['Personal_Diligencia', 'Personal que diligencia'],
-        ['Valoracion_Riesgos', 'Paquete instruccional a verificar (Valoración de Riesgos)'],
-        ['__month', 'Pacientes por mes']
-    ],
-
-    mensual: [
-        ['__monthly_adherence', 'Evolución mensual de adherencia PE-ID-01'],
-        ['__monthly_apps', 'Listas aplicadas por mes']
-    ],
-
-    comparativo: [
-        ['__compare_adherence', 'Adherencia PE-ID-01 por servicio'],
-        ['__compare_count', 'Aplicaciones por servicio'],
-        ['__compare_missing', 'Campos vacíos por servicio'],
-        ['__compare_variable', 'Comparación de respuestas por servicio']
-    ],
-
-    riesgo: [
-        ['Percepcion_Sensorial', 'Percepción sensorial'],
-        ['Humedad', 'Humedad'],
-        ['Actividad_Fisica', 'Actividad física'],
-        ['Movilidad', 'Movilidad'],
-        ['Nutricion', 'Nutrición'],
-        ['Friccion', 'Fricción y deslizamiento'],
-        ['Total_Braden', 'Total riesgo LPP - Escala Braden']
-    ],
-
-    postural: [
-        ['Criterio_R', labels.Criterio_R],
-        ...['S', 'T', 'U', 'V', 'W', 'X', 'Y'].map(
-            k => ['Criterio_' + k, labels['Criterio_' + k]]
-        )
-    ],
-
-    prevencion: [
-        ...['N', 'O', 'P', 'Q', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF'].map(
-            k => ['Criterio_' + k, labels['Criterio_' + k]]
-        )
-    ],
-
-    calidad: [
-        ['__missing', 'Datos vacíos por variable'],
-        ['__missingservice', 'Datos vacíos por servicio'],
-        ['__missingrows', 'Registros con campos vacíos']
-    ]
-};
-
-let tab = 'general';
-
-const dataKeys = Object.keys(all[0] || {}).filter(
-    k => k.startsWith('Criterio_') ||
-    [
-        'Tipo_Control',
-        'Evaluador_Autocontrol',
-        'Personal_Diligencia',
-        'Valoracion_Riesgos'
-    ].includes(k)
-);
-
-// CALCULAR ADHERENCIA PE-ID-01
+const negativos = new Set([
+    'no',
+    'unchecked'
+]);
 
 function calcularAdherencia(
     registros,
@@ -133,43 +128,20 @@ function calcularAdherencia(
 
         criterios.forEach(criterio => {
 
-            const respuesta = String(
-                registro[criterio] ?? ''
-            ).trim().toLowerCase();
+            const respuesta = texto(
+                registro[criterio]
+            ).toLowerCase();
 
-            // RESPUESTAS POSITIVAS
-
-            if (
-                [
-                    'yes',
-                    'checked',
-                    'check',
-                    'sí',
-                    'si'
-                ].includes(respuesta)
-            ) {
+            if (positivos.has(respuesta)) {
 
                 numerador++;
                 denominador++;
 
-            }
-
-            // RESPUESTAS NEGATIVAS
-
-            else if (
-                [
-                    'no',
-                    'unchecked'
-                ].includes(respuesta)
-            ) {
+            } else if (negativos.has(respuesta)) {
 
                 denominador++;
 
-            }
-
-            // NO APLICA, VACÍOS Y OTROS VALORES
-
-            else {
+            } else {
 
                 excluidos++;
 
@@ -180,91 +152,770 @@ function calcularAdherencia(
     });
 
     return {
-
         numerador,
-
         denominador,
-
         excluidos,
 
         incumplimientos:
             denominador - numerador,
 
         porcentaje: denominador > 0
-            ? (numerador / denominador) * 100
+            ? numerador / denominador * 100
             : null
-
     };
 }
 
-// OPCIONES DE FILTROS
+// ==========================================
+// FORMATO DE NÚMEROS
+// ==========================================
 
-function options(id, key) {
+function formatoNumero(valor) {
 
-    const values = [
-        ...new Set(
-            all.map(r => r[key]).filter(Boolean)
-        )
-    ].sort();
+    return new Intl.NumberFormat('es-CO')
+        .format(valor);
 
-    $(id).innerHTML =
-        '<option value="">Todos</option>' +
-        values.map(v =>
-            `<option value="${esc(v)}">
-                ${esc(v)}
-            </option>`
-        ).join('');
 }
 
-options('control', 'Tipo_Control');
+function formatoPorcentaje(valor) {
 
-options('evaluator', 'Evaluador_Autocontrol');
+    return valor === null
+        ? 'Sin evaluaciones'
+        : valor.toLocaleString('es-CO', {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 2
+        }) + '%';
 
-// FILTRAR REGISTROS
+}
 
-function rows() {
+function actualizarTexto(id, valor) {
 
-    let d = all.filter(r =>
+    const elemento = $(id);
+
+    if (elemento) {
+        elemento.textContent = valor;
+    }
+
+}
+
+function aplicaciones(d) {
+
+    return new Set(
+        d.map(r => texto(r.ID_Aplicacion))
+            .filter(Boolean)
+    ).size;
+
+}
+
+// ==========================================
+// GRUPOS DE VARIABLES
+// ==========================================
+
+const groups = {
+
+    general: [
+        ['__adherence', 'Adherencia general PE-ID-01'],
+        ['__criteria_adherence', 'Adherencia por criterio'],
+        ['Servicio', 'Aplicaciones por servicio'],
+        ['Tipo_Control', 'Tipo de control'],
+        ['Evaluador', 'Evaluador'],
+        ['Personal_Diligencia', 'Personal que diligencia'],
+        ['Valoracion_Riesgos', 'Valoración de riesgos'],
+        ['__month', 'Pacientes por mes']
+    ],
+
+    mensual: [
+        ['__monthly_adherence', 'Evolución mensual de adherencia'],
+        ['__monthly_apps', 'Listas aplicadas por mes']
+    ],
+
+    comparativo: [
+        ['__compare_adherence', 'Adherencia PE-ID-01 por servicio'],
+        ['__compare_count', 'Aplicaciones por servicio'],
+        ['__compare_missing', 'Campos vacíos por servicio'],
+        ['__compare_variable', 'Comparación de respuestas por servicio']
+    ],
+
+    riesgo: Object.entries(bradenLabels),
+
+    postural: [
+        ['Criterio_R', labels.Criterio_R],
+        ...['S', 'T', 'U', 'V', 'W', 'X', 'Y'].map(
+            k => [
+                'Criterio_' + k,
+                labels['Criterio_' + k]
+            ]
+        )
+    ],
+
+    prevencion: [
+        ...[
+            'N', 'O', 'P', 'Q', 'Z',
+            'AA', 'AB', 'AC', 'AD', 'AE', 'AF'
+        ].map(k => [
+            'Criterio_' + k,
+            labels['Criterio_' + k]
+        ])
+    ],
+
+    calidad: [
+        ['__missing', 'Datos vacíos por variable'],
+        ['__missingservice', 'Datos vacíos por servicio'],
+        ['__missingrows', 'Registros con campos vacíos']
+    ]
+
+};
+
+let tab = 'general';
+
+let compareField = 'Criterio_R';
+
+const dataKeys = [
+    ...new Set([
+        ...Object.keys(labels).filter(
+            k => k.startsWith('Criterio_')
+        ),
+        ...criteriosAdherencia,
+        ...Object.keys(bradenLabels),
+        'Tipo_Control',
+        'Evaluador',
+        'Personal_Diligencia',
+        'Valoracion_Riesgos'
+    ])
+];
+
+// ==========================================
+// FILTROS
+// ==========================================
+
+function valoresUnicos(registros, campo) {
+
+    return [
+        ...new Set(
+            registros.map(r => texto(r[campo]))
+                .filter(Boolean)
+        )
+    ].sort((a, b) =>
+        a.localeCompare(b, 'es')
+    );
+
+}
+
+function llenarSelect(id, valores, placeholder) {
+
+    const elemento = $(id);
+
+    if (!elemento) return;
+
+    const anterior = elemento.value;
+
+    elemento.innerHTML = `
+        <option value="">
+            ${esc(placeholder)}
+        </option>
+
+        ${valores.map(v => `
+            <option value="${esc(v)}">
+                ${esc(v)}
+            </option>
+        `).join('')}
+    `;
+
+    if (valores.includes(anterior)) {
+        elemento.value = anterior;
+    }
+
+}
+
+function iniciarControles() {
+
+    const controles = [
+        ...new Set([
+            'Autocontrol',
+            'Control Externo',
+            ...valoresUnicos(all, 'Tipo_Control')
+        ])
+    ];
+
+    llenarSelect(
+        'control',
+        controles,
+        'Todos los controles'
+    );
+
+}
+
+function refreshEvaluators() {
+
+    const control = $('control').value;
+
+    const servicio = $('service').value;
+
+    const registros = all.filter(r =>
 
         services.includes(r.Servicio) &&
 
-        (
-            !$('service').value ||
-            r.Servicio === $('service').value
-        ) &&
+        (!control || r.Tipo_Control === control) &&
 
-        (
-            !$('control').value ||
-            r.Tipo_Control === $('control').value
-        ) &&
+        (!servicio || r.Servicio === servicio)
 
-        (
-            !$('evaluator').value ||
-            r.Evaluador_Autocontrol === $('evaluator').value
-        )
     );
 
-    const a = $('from').value;
+    const evaluadores = valoresUnicos(
+        registros,
+        'Evaluador'
+    );
 
-    const b = $('to').value;
+    llenarSelect(
+        'evaluator',
+        evaluadores,
+        'Todos los evaluadores'
+    );
 
-    if (a || b) {
+    if (!evaluadores.length) {
 
-        d = d.filter(r =>
+        $('evaluator').innerHTML += `
+            <option disabled>
+                Sin evaluadores disponibles
+            </option>
+        `;
 
-            r.Fecha_Auditoria &&
-
-            (!a || r.Fecha_Auditoria >= a) &&
-
-            (!b || r.Fecha_Auditoria <= b)
-
-        );
     }
 
-    return d;
 }
 
-// GRÁFICAS DE DISTRIBUCIÓN
+function rows() {
+
+    const servicio = $('service').value;
+    const control = $('control').value;
+    const evaluador = $('evaluator').value;
+
+    const desde = $('from').value;
+    const hasta = $('to').value;
+
+    return all.filter(r => {
+
+        if (!services.includes(r.Servicio)) {
+            return false;
+        }
+
+        if (servicio && r.Servicio !== servicio) {
+            return false;
+        }
+
+        if (control && r.Tipo_Control !== control) {
+            return false;
+        }
+
+        if (evaluador && r.Evaluador !== evaluador) {
+            return false;
+        }
+
+        const fecha = texto(
+            r.Fecha_Auditoria
+        ).slice(0, 10);
+
+        if ((desde || hasta) && !fechaValida(fecha)) {
+            return false;
+        }
+
+        if (desde && fecha < desde) {
+            return false;
+        }
+
+        if (hasta && fecha > hasta) {
+            return false;
+        }
+
+        return true;
+
+    });
+
+}
+
+// ==========================================
+// VALIDACIÓN Y AGRUPACIÓN DE FECHAS
+// ==========================================
+
+function fechaValida(valor) {
+
+    const fecha = texto(valor).slice(0, 10);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        return false;
+    }
+
+    const d = new Date(fecha + 'T12:00:00Z');
+
+    return !Number.isNaN(d.getTime()) &&
+        d.toISOString().slice(0, 10) === fecha;
+
+}
+
+function agruparMeses(d) {
+
+    const meses = {};
+
+    d.forEach(r => {
+
+        if (!fechaValida(r.Fecha_Auditoria)) {
+            return;
+        }
+
+        const mes = texto(
+            r.Fecha_Auditoria
+        ).slice(0, 7);
+
+        (meses[mes] ??= []).push(r);
+
+    });
+
+    return Object.entries(meses)
+        .sort(([a], [b]) => a.localeCompare(b));
+
+}
+
+function obtenerAdherenciaMensual(d) {
+
+    return agruparMeses(d).map(
+        ([mes, registros]) => ({
+            mes,
+            ...calcularAdherencia(registros)
+        })
+    );
+
+}
+
+function nombreMes(mes) {
+
+    return new Date(
+        mes + '-01T12:00:00'
+    ).toLocaleDateString('es-CO', {
+        month: 'short',
+        year: '2-digit'
+    });
+
+}
+
+function mesesConsecutivos(a, b) {
+
+    const [ya, ma] = a.split('-').map(Number);
+
+    const [yb, mb] = b.split('-').map(Number);
+
+    return yb * 12 + mb - (ya * 12 + ma) === 1;
+
+}
+
+// ==========================================
+// TARJETAS SUPERIORES
+// ==========================================
+
+function renderKpis(d) {
+
+    const a = calcularAdherencia(d);
+
+    actualizarTexto(
+        'adherenceKpi',
+        a.porcentaje === null
+            ? '—'
+            : formatoPorcentaje(a.porcentaje)
+    );
+
+    actualizarTexto(
+        'apps',
+        formatoNumero(aplicaciones(d))
+    );
+
+    actualizarTexto(
+        'numerator',
+        formatoNumero(a.numerador)
+    );
+
+    actualizarTexto(
+        'denominator',
+        formatoNumero(a.denominador)
+    );
+
+    actualizarTexto(
+        'records',
+        formatoNumero(d.length)
+    );
+
+}
+
+// ==========================================
+// GRÁFICA MENSUAL DE LÍNEAS
+// ==========================================
+
+function generarGraficaMensual(d) {
+
+    const datos = obtenerAdherenciaMensual(d);
+
+    if (!datos.some(p => p.porcentaje !== null)) {
+
+        return `
+            <div class="empty-state">
+                No hay evaluaciones con fechas válidas
+                para generar la gráfica mensual.
+            </div>
+        `;
+
+    }
+
+    const width = Math.max(
+        500,
+        datos.length * 65 + 90
+    );
+
+    const height = 290;
+
+    const left = 50;
+    const right = 35;
+    const top = 30;
+    const bottom = 45;
+
+    const plotWidth = width - left - right;
+
+    const plotHeight = height - top - bottom;
+
+    const x = i => datos.length === 1
+        ? left + plotWidth / 2
+        : left + i * plotWidth / (datos.length - 1);
+
+    const y = v =>
+        top + plotHeight * (1 - v / 100);
+
+    const grid = [0, 25, 50, 75, 100].map(v => `
+
+        <line
+            x1="${left}"
+            y1="${y(v)}"
+            x2="${width - right}"
+            y2="${y(v)}"
+            stroke="#e4ebf2"
+            stroke-width="1"
+            stroke-dasharray="4 4"
+        />
+
+        <text
+            x="${left - 10}"
+            y="${y(v) + 4}"
+            text-anchor="end"
+            font-size="11"
+            fill="#8292a3"
+        >
+            ${v}%
+        </text>
+
+    `).join('');
+
+    let path = '';
+
+    let anterior = null;
+
+    datos.forEach((p, i) => {
+
+        if (p.porcentaje === null) {
+
+            anterior = null;
+            return;
+
+        }
+
+        const conectar = anterior !== null &&
+            mesesConsecutivos(anterior, p.mes);
+
+        path +=
+            `${conectar ? 'L' : 'M'} ` +
+            `${x(i)} ${y(p.porcentaje)} `;
+
+        anterior = p.mes;
+
+    });
+
+    const puntos = datos.map((p, i) => {
+
+        if (p.porcentaje === null) {
+            return '';
+        }
+
+        return `
+
+            <circle
+                cx="${x(i)}"
+                cy="${y(p.porcentaje)}"
+                r="5"
+                fill="#1683ad"
+                stroke="white"
+                stroke-width="2"
+            >
+
+                <title>
+                    ${esc(nombreMes(p.mes))}:
+                    ${formatoPorcentaje(p.porcentaje)}
+                    (${p.numerador}/${p.denominador})
+                </title>
+
+            </circle>
+
+            <text
+                x="${x(i)}"
+                y="${y(p.porcentaje) - 12}"
+                text-anchor="middle"
+                font-size="10"
+                font-weight="700"
+                fill="#1683ad"
+            >
+                ${formatoPorcentaje(p.porcentaje)}
+            </text>
+
+        `;
+
+    }).join('');
+
+    const etiquetas = datos.map((p, i) => `
+
+        <text
+            x="${x(i)}"
+            y="${height - 15}"
+            text-anchor="middle"
+            font-size="11"
+            fill="#8292a3"
+        >
+            ${esc(nombreMes(p.mes))}
+        </text>
+
+    `).join('');
+
+    return `
+
+        <div style="overflow-x:auto;width:100%;">
+
+            <svg
+                viewBox="0 0 ${width} ${height}"
+                xmlns="http://www.w3.org/2000/svg"
+                role="img"
+                aria-label="Evolución mensual de adherencia"
+                style="
+                    display:block;
+                    width:100%;
+                    min-width:${Math.min(width, 500)}px;
+                    height:auto;
+                "
+            >
+
+                ${grid}
+
+                <path
+                    d="${path}"
+                    fill="none"
+                    stroke="#1683ad"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+
+                ${puntos}
+
+                ${etiquetas}
+
+            </svg>
+
+        </div>
+
+    `;
+
+}
+
+// ==========================================
+// GRÁFICA DE ADHERENCIA POR SERVICIO
+// ==========================================
+
+function generarServicios(d) {
+
+    return services.map(servicio => {
+
+        const registros = d.filter(
+            r => r.Servicio === servicio
+        );
+
+        const a = calcularAdherencia(registros);
+
+        return `
+
+            <div class="overview-service">
+
+                <div class="overview-service-head">
+
+                    <span>
+                        ${esc(servicio)}
+                    </span>
+
+                    <strong>
+                        ${formatoPorcentaje(a.porcentaje)}
+                    </strong>
+
+                </div>
+
+                <div class="overview-track">
+
+                    <div
+                        class="overview-fill"
+                        style="width:${a.porcentaje ?? 0}%"
+                    ></div>
+
+                </div>
+
+                <small>
+
+                    ${formatoNumero(a.numerador)}
+
+                    de
+
+                    ${formatoNumero(a.denominador)}
+
+                    criterios cumplidos
+
+                </small>
+
+            </div>
+
+        `;
+
+    }).join('');
+
+}
+
+// ==========================================
+// GRÁFICA CIRCULAR
+// ==========================================
+
+function generarDonut(d) {
+
+    const a = calcularAdherencia(d);
+
+    if (a.porcentaje === null) {
+
+        return `
+            <div class="empty-state">
+                Sin criterios evaluados.
+            </div>
+        `;
+
+    }
+
+    const p = a.porcentaje;
+
+    return `
+
+        <div class="donut-layout">
+
+            <div
+                class="donut"
+                style="
+                    background:conic-gradient(
+                        #1683ad 0% ${p}%,
+                        #d97757 ${p}% 100%
+                    );
+                "
+            >
+
+                <div class="donut-center">
+
+                    <strong>
+                        ${formatoPorcentaje(p)}
+                    </strong>
+
+                    <small>Adherencia</small>
+
+                </div>
+
+            </div>
+
+            <div class="donut-legend">
+
+                <div class="legend-item">
+
+                    <span class="legend-dot positive"></span>
+
+                    <div>
+
+                        Criterios cumplidos
+
+                        <strong>
+                            ${formatoNumero(a.numerador)}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="legend-item">
+
+                    <span class="legend-dot negative"></span>
+
+                    <div>
+
+                        Criterios incumplidos
+
+                        <strong>
+                            ${formatoNumero(a.incumplimientos)}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+// ==========================================
+// RESUMEN GENERAL
+// ==========================================
+
+function renderOverview(d) {
+
+    renderKpis(d);
+
+    if ($('overview')) {
+
+        $('overview').hidden = tab !== 'general';
+
+    }
+
+    if (tab !== 'general') return;
+
+    if ($('monthlyLine')) {
+
+        $('monthlyLine').innerHTML =
+            generarGraficaMensual(d);
+
+    }
+
+    if ($('overviewServices')) {
+
+        $('overviewServices').innerHTML =
+            generarServicios(d);
+
+    }
+
+    if ($('overviewDonut')) {
+
+        $('overviewDonut').innerHTML =
+            generarDonut(d);
+
+    }
+
+}
+
+// ==========================================
+// GRÁFICAS DE BARRAS
+// ==========================================
 
 function renderBars(items, showPct = false) {
 
@@ -286,29 +937,28 @@ function renderBars(items, showPct = false) {
 
                 <div
                     class="barlabel"
-                    title="${esc(label)}">
-
+                    title="${esc(label)}"
+                >
                     ${esc(label)}
-
                 </div>
 
                 <div class="track">
 
                     <div
                         class="fill ${label === 'Sin respuesta' ? 'empty' : ''}"
-                        style="width:${100 * n / max}%">
-                    </div>
+                        style="width:${100 * n / max}%"
+                    ></div>
 
                 </div>
 
                 <div class="barvalue">
 
-                    ${n}
+                    ${formatoNumero(n)}
 
                     ${
                         showPct && total
-                        ? ' · ' + (100 * n / total).toFixed(1) + '%'
-                        : ''
+                            ? ' · ' + (100 * n / total).toFixed(1) + '%'
+                            : ''
                     }
 
                 </div>
@@ -322,9 +972,8 @@ function renderBars(items, showPct = false) {
                 No hay registros para esta selección.
             </div>
         `;
-}
 
-// CONTAR RESPUESTAS
+}
 
 function counts(d, key) {
 
@@ -332,9 +981,7 @@ function counts(d, key) {
 
     d.forEach(r => {
 
-        const v =
-            String(r[key] ?? '').trim() ||
-            'Sin respuesta';
+        const v = texto(r[key]) || 'Sin respuesta';
 
         o[v] = (o[v] || 0) + 1;
 
@@ -343,9 +990,12 @@ function counts(d, key) {
     return Object.entries(o).sort(
         (a, b) => b[1] - a[1]
     );
+
 }
 
+// ==========================================
 // GRÁFICAS DE ADHERENCIA
+// ==========================================
 
 function renderAdherencia(items) {
 
@@ -362,13 +1012,7 @@ function renderAdherencia(items) {
                     </span>
 
                     <strong>
-
-                        ${
-                            a.porcentaje === null
-                            ? 'Sin evaluaciones'
-                            : a.porcentaje.toFixed(2) + '%'
-                        }
-
+                        ${formatoPorcentaje(a.porcentaje)}
                     </strong>
 
                 </div>
@@ -377,27 +1021,27 @@ function renderAdherencia(items) {
 
                     <div
                         class="service-fill"
-                        style="width:${a.porcentaje ?? 0}%">
-                    </div>
+                        style="width:${a.porcentaje ?? 0}%"
+                    ></div>
 
                 </div>
 
                 <div class="compare-values">
 
                     <span>
-                        Cumplidos: ${a.numerador}
+                        Cumplidos: ${formatoNumero(a.numerador)}
                     </span>
 
                     <span>
-                        Evaluados: ${a.denominador}
+                        Evaluados: ${formatoNumero(a.denominador)}
                     </span>
 
                     <span>
-                        Incumplidos: ${a.incumplimientos}
+                        Incumplidos: ${formatoNumero(a.incumplimientos)}
                     </span>
 
                     <span>
-                        Excluidos: ${a.excluidos}
+                        Excluidos: ${formatoNumero(a.excluidos)}
                     </span>
 
                 </div>
@@ -411,18 +1055,18 @@ function renderAdherencia(items) {
                 No hay evaluaciones disponibles.
             </div>
         `;
+
 }
 
-// RESUMEN DE SERVICIOS
+// ==========================================
+// PANEL SECUNDARIO DE SERVICIOS
+// ==========================================
 
 function renderService(d) {
 
     const serviceCounts = services.map(s => [
-
         s,
-
         d.filter(r => r.Servicio === s).length
-
     ]);
 
     const max = Math.max(
@@ -430,88 +1074,202 @@ function renderService(d) {
         ...serviceCounts.map(x => x[1])
     );
 
-    $('servicebars').innerHTML = serviceCounts.map(
-        ([s, n]) => `
+    if ($('servicebars')) {
 
-            <div class="service-row">
+        $('servicebars').innerHTML = serviceCounts.map(
+            ([s, n]) => `
 
-                <div class="service-line">
+                <div class="service-row">
 
-                    <span>${esc(s)}</span>
+                    <div class="service-line">
 
-                    <strong>${n} registros</strong>
+                        <span>${esc(s)}</span>
+
+                        <strong>
+                            ${formatoNumero(n)} registros
+                        </strong>
+
+                    </div>
+
+                    <div class="service-track">
+
+                        <div
+                            class="service-fill"
+                            style="width:${100 * n / max}%"
+                        ></div>
+
+                    </div>
 
                 </div>
 
-                <div class="service-track">
+            `
+        ).join('');
 
-                    <div
-                        class="service-fill"
-                        style="width:${100 * n / max}%">
-                    </div>
+    }
+
+    const a = calcularAdherencia(d);
+
+    if ($('insight')) {
+
+        $('insight').innerHTML = `
+
+            <strong>Indicador PE-ID-01</strong>
+
+            <br><br>
+
+            Adherencia:
+            <strong>
+                ${formatoPorcentaje(a.porcentaje)}
+            </strong>
+
+            <br>
+
+            Numerador:
+            <strong>${formatoNumero(a.numerador)}</strong>
+
+            <br>
+
+            Denominador:
+            <strong>${formatoNumero(a.denominador)}</strong>
+
+            <br>
+
+            Incumplimientos:
+            <strong>${formatoNumero(a.incumplimientos)}</strong>
+
+            <br>
+
+            Respuestas excluidas:
+            <strong>${formatoNumero(a.excluidos)}</strong>
+
+            <br><br>
+
+            <small>
+                Cálculo provisional por criterio evaluado.
+            </small>
+
+        `;
+
+    }
+
+}
+
+// ==========================================
+// COMPARACIÓN DE VARIABLES
+// ==========================================
+
+function renderComparacionVariable(d) {
+
+    if (!dataKeys.includes(compareField)) {
+
+        compareField = dataKeys[0] || 'Criterio_R';
+
+    }
+
+    const subset = services.map(s => {
+
+        const rr = d.filter(
+            r => r.Servicio === s
+        );
+
+        const distribucion = counts(
+            rr,
+            compareField
+        );
+
+        return `
+
+            <div class="compare-row">
+
+                <strong>${esc(s)}</strong>
+
+                <div class="compare-values">
+
+                    ${
+                        distribucion.length
+
+                        ? distribucion.map(([respuesta, n]) => `
+
+                            <span>
+
+                                ${esc(respuesta)}:
+
+                                ${formatoNumero(n)}
+
+                            </span>
+
+                        `).join('')
+
+                        : '<span>Sin registros</span>'
+                    }
 
                 </div>
 
             </div>
 
-        `
-    ).join('');
+        `;
 
-    const indicador = calcularAdherencia(d);
+    });
 
-    $('insight').innerHTML = `
+    $('visual').innerHTML = `
 
-        <strong>Indicador PE-ID-01</strong>
+        <label class="compare-selector">
 
-        <br><br>
+            Variable para comparar
 
-        Adherencia calculada:
+            <select id="comparefield">
 
-        <strong>
+                ${dataKeys.map(k => `
 
-            ${
-                indicador.porcentaje === null
-                ? 'Sin evaluaciones'
-                : indicador.porcentaje.toFixed(2) + '%'
-            }
+                    <option
+                        value="${esc(k)}"
+                        ${k === compareField ? 'selected' : ''}
+                    >
+                        ${esc(labels[k] || k)}
+                    </option>
 
-        </strong>
+                `).join('')}
 
-        <br>
+            </select>
 
-        Numerador:
-        <strong>${indicador.numerador}</strong>
+        </label>
 
-        <br>
-
-        Denominador:
-        <strong>${indicador.denominador}</strong>
-
-        <br>
-
-        Criterios incumplidos:
-        <strong>${indicador.incumplimientos}</strong>
-
-        <br>
-
-        Respuestas excluidas:
-        <strong>${indicador.excluidos}</strong>
-
-        <br><br>
-
-        Registros seleccionados:
-        <strong>${d.length}</strong>
-
-        <br>
-
-        <small>
-            Cálculo provisional por criterio evaluado.
-        </small>
+        ${subset.join('')}
 
     `;
+
+    $('comparefield').addEventListener(
+        'change',
+        e => {
+
+            compareField = e.target.value;
+
+            render();
+
+        }
+    );
+
 }
 
+// ==========================================
+// CALIDAD DE DATOS
+// ==========================================
+
+function contarVacios(registros) {
+
+    return registros.reduce(
+        (total, r) => total +
+            dataKeys.filter(
+                k => !texto(r[k])
+            ).length,
+        0
+    );
+
+}
+
+// ==========================================
 // RENDERIZAR DASHBOARD
+// ==========================================
 
 function render() {
 
@@ -519,195 +1277,64 @@ function render() {
 
     const key = $('variable').value;
 
-    const datesMissing = !all.some(
-        r => r.Fecha_Auditoria
+    renderOverview(d);
+
+    actualizarTexto(
+        'datewarn',
+        all.some(r => fechaValida(r.Fecha_Auditoria))
+            ? ''
+            : 'No hay fechas de auditoría válidas disponibles.'
     );
 
-    $('datewarn').textContent = datesMissing
-
-        ? 'No hay fechas de auditoría disponibles. El filtro temporal requiere fechas reales.'
-
-        : '';
-
-    $('apps').textContent = new Set(
-
-        d.map(r => r.ID_Aplicacion)
-            .filter(Boolean)
-
-    ).size;
-
-    $('records').textContent = d.length;
-
     let foot =
-        'Los vacíos no se consideran automáticamente incumplimientos. Las respuestas No aplica se conservan separadas.';
+        'Los datos vacíos no se consideran automáticamente incumplimientos.';
 
     // ADHERENCIA GENERAL
 
     if (key === '__adherence') {
 
-        const indicador = calcularAdherencia(d);
+        const a = calcularAdherencia(d);
 
         $('visual').innerHTML = `
 
             <div style="
-                padding:20px;
+                padding:15px;
                 text-align:center;
             ">
 
                 <div style="
-                    font-size:15px;
+                    font-size:14px;
                     font-weight:600;
                 ">
-
                     Indicador PE-ID-01
-
                 </div>
 
                 <div style="
-                    font-size:48px;
+                    font-size:42px;
                     font-weight:800;
                     color:#1683ad;
-                    margin:15px 0;
+                    margin:12px 0;
                 ">
 
-                    ${
-                        indicador.porcentaje === null
-                        ? 'Sin datos'
-                        : indicador.porcentaje.toFixed(2) + '%'
-                    }
+                    ${formatoPorcentaje(a.porcentaje)}
 
                 </div>
 
                 <div>
 
-                    Adherencia al paquete instruccional
-                    de prevención de lesiones por presión
+                    ${formatoNumero(a.numerador)}
 
-                </div>
+                    criterios cumplidos de
 
-                <div style="
-                    display:grid;
-                    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-                    gap:12px;
-                    margin-top:25px;
-                ">
+                    ${formatoNumero(a.denominador)}
 
-                    <div style="
-                        padding:15px;
-                        border:1px solid #dbe5eb;
-                        border-radius:10px;
-                    ">
-
-                        <div>Numerador</div>
-
-                        <strong style="font-size:26px;">
-
-                            ${indicador.numerador}
-
-                        </strong>
-
-                        <div>Criterios cumplidos</div>
-
-                    </div>
-
-                    <div style="
-                        padding:15px;
-                        border:1px solid #dbe5eb;
-                        border-radius:10px;
-                    ">
-
-                        <div>Denominador</div>
-
-                        <strong style="font-size:26px;">
-
-                            ${indicador.denominador}
-
-                        </strong>
-
-                        <div>Criterios evaluados</div>
-
-                    </div>
-
-                    <div style="
-                        padding:15px;
-                        border:1px solid #dbe5eb;
-                        border-radius:10px;
-                    ">
-
-                        <div>Incumplimientos</div>
-
-                        <strong style="
-                            font-size:26px;
-                            color:#c54b4b;
-                        ">
-
-                            ${indicador.incumplimientos}
-
-                        </strong>
-
-                        <div>Criterios negativos</div>
-
-                    </div>
-
-                    <div style="
-                        padding:15px;
-                        border:1px solid #dbe5eb;
-                        border-radius:10px;
-                    ">
-
-                        <div>Excluidos</div>
-
-                        <strong style="font-size:26px;">
-
-                            ${indicador.excluidos}
-
-                        </strong>
-
-                        <div>Vacíos, No aplica y otros</div>
-
-                    </div>
-
-                </div>
-
-                <div style="
-                    display:flex;
-                    height:20px;
-                    background:#e5e7eb;
-                    border-radius:8px;
-                    overflow:hidden;
-                    margin-top:25px;
-                ">
-
-                    <div style="
-                        background:#1683ad;
-                        width:${indicador.porcentaje ?? 0}%;
-                    "></div>
-
-                    <div style="
-                        background:#d97757;
-                        width:${
-                            indicador.porcentaje === null
-                            ? 0
-                            : 100 - indicador.porcentaje
-                        }%;
-                    "></div>
-
-                </div>
-
-                <div style="
-                    margin-top:15px;
-                    font-size:13px;
-                ">
-
-                    ${
-                        indicador.porcentaje === null
-                        ? 'No hay criterios evaluados.'
-                        : `${indicador.numerador} criterios cumplidos de ${indicador.denominador} evaluados`
-                    }
+                    evaluados.
 
                 </div>
 
             </div>
+
+            ${generarDonut(d)}
 
         `;
 
@@ -721,11 +1348,8 @@ function render() {
     else if (key === '__criteria_adherence') {
 
         const resultados = criteriosAdherencia.map(k => [
-
             labels[k] || k,
-
             calcularAdherencia(d, [k])
-
         ]);
 
         resultados.sort((a, b) =>
@@ -738,7 +1362,7 @@ function render() {
         renderAdherencia(resultados);
 
         foot =
-            'Los criterios se ordenan de menor a mayor adherencia. Los criterios sin evaluaciones aparecen al final.';
+            'Criterios ordenados de menor a mayor adherencia.';
 
     }
 
@@ -746,80 +1370,16 @@ function render() {
 
     else if (key === '__monthly_adherence') {
 
-        const meses = {};
+        $('visual').innerHTML =
+            generarGraficaMensual(d);
 
-        d.forEach(r => {
-
-            const fecha = String(
-                r.Fecha_Auditoria || ''
-            );
-
-            if (
-                /^\d{4}-\d{2}-\d{2}/.test(fecha)
-            ) {
-
-                const mes = fecha.slice(0, 7);
-
-                if (!meses[mes]) {
-
-                    meses[mes] = [];
-
-                }
-
-                meses[mes].push(r);
-
-            }
-
-        });
-
-        const resultados = Object.entries(meses)
-
-            .sort(([a], [b]) => a.localeCompare(b))
-
-            .map(([mes, registros]) => [
-
-                mes,
-
-                calcularAdherencia(registros)
-
-            ]);
-
-        renderAdherencia(resultados);
-
-        const sinFecha = d.filter(r =>
-            !/^\d{4}-\d{2}-\d{2}/.test(
-                String(r.Fecha_Auditoria || '')
-            )
+        const sinFecha = d.filter(
+            r => !fechaValida(r.Fecha_Auditoria)
         ).length;
 
         foot =
-            'La adherencia mensual se calcula dividiendo los criterios cumplidos entre los criterios evaluados de cada mes. ' +
-            `Registros excluidos por falta de fecha válida: ${sinFecha}.`;
-
-    }
-
-    // ADHERENCIA POR SERVICIO
-
-    else if (key === '__compare_adherence') {
-
-        const resultados = services.map(servicio => [
-
-            servicio,
-
-            calcularAdherencia(
-
-                d.filter(r =>
-                    r.Servicio === servicio
-                )
-
-            )
-
-        ]);
-
-        renderAdherencia(resultados);
-
-        foot =
-            'Cada servicio tiene su propio numerador y denominador. La adherencia general se calcula sobre todos los criterios evaluados, no mediante un promedio simple de porcentajes.';
+            'Adherencia calculada por criterio evaluado en cada mes. ' +
+            `Registros sin fecha válida: ${sinFecha}.`;
 
     }
 
@@ -827,92 +1387,54 @@ function render() {
 
     else if (key === '__monthly_apps') {
 
-        const valid = d.filter(r =>
-
-            /^\d{4}-\d{2}-\d{2}/.test(
-
-                String(r.Fecha_Auditoria || '')
-
-            )
-
+        const resultados = agruparMeses(d).map(
+            ([mes, registros]) => [
+                nombreMes(mes),
+                aplicaciones(registros)
+            ]
         );
 
-        if (!valid.length) {
-
-            $('visual').innerHTML = `
-
-                <div class="empty-state">
-
-                    No hay fechas de auditoría válidas
-                    en los registros filtrados.
-
-                </div>
-
-            `;
-
-        } else {
-
-            const m = {};
-
-            valid.forEach(r => {
-
-                const k = String(
-                    r.Fecha_Auditoria
-                ).slice(0, 7);
-
-                if (r.ID_Aplicacion) {
-
-                    (m[k] ??= new Set()).add(
-                        r.ID_Aplicacion
-                    );
-
-                }
-
-            });
-
-            renderBars(
-
-                Object.entries(m)
-
-                    .sort(([a], [b]) =>
-                        a.localeCompare(b)
-                    )
-
-                    .map(([k, v]) =>
-                        [k, v.size]
-                    ),
-
-                true
-
-            );
-
-        }
+        renderBars(resultados);
 
         foot =
-            'Se cuentan aplicaciones distintas por mes, no pacientes únicos.';
+            'Número de listas aplicadas por mes. No equivale a pacientes únicos.';
 
     }
 
-    // COMPARATIVO DE APLICACIONES
+    // ADHERENCIA POR SERVICIO
 
-    else if (key === '__compare_count') {
+    else if (key === '__compare_adherence') {
+
+        renderAdherencia(
+
+            services.map(s => [
+                s,
+                calcularAdherencia(
+                    d.filter(r => r.Servicio === s)
+                )
+            ])
+
+        );
+
+        foot =
+            'Cada servicio tiene su propio numerador y denominador.';
+
+    }
+
+    // APLICACIONES POR SERVICIO
+
+    else if (
+        key === '__compare_count' ||
+        key === 'Servicio'
+    ) {
 
         renderBars(
 
             services.map(s => [
-
                 s,
-
-                new Set(
-
+                aplicaciones(
                     d.filter(r => r.Servicio === s)
-
-                        .map(r => r.ID_Aplicacion)
-
-                        .filter(Boolean)
-
-                ).size
-
+                )
             ]),
 
             true
@@ -920,157 +1442,18 @@ function render() {
         );
 
         foot =
-            'Comparación de listas aplicadas; no equivale a adherencia.';
+            'Número de aplicaciones distintas por servicio.';
 
     }
 
-    // CAMPOS VACÍOS POR SERVICIO
-
-    else if (key === '__compare_missing') {
-
-        renderBars(
-
-            services.map(s => [
-
-                s,
-
-                d.filter(r => r.Servicio === s)
-
-                    .reduce(
-
-                        (n, r) => n + dataKeys.filter(
-
-                            k => !String(
-                                r[k] ?? ''
-                            ).trim()
-
-                        ).length,
-
-                        0
-
-                    )
-
-            ])
-
-        );
-
-        foot =
-            'Cantidad de celdas vacías por servicio. Algunas preguntas condicionales pueden no aplicar.';
-
-    }
-
-    // COMPARACIÓN DE RESPUESTAS
+    // COMPARACIÓN DE VARIABLES
 
     else if (key === '__compare_variable') {
 
-        const chosen =
-            $('comparefield')?.value ||
-            'Criterio_R';
-
-        const subset = services.map(s => {
-
-            const rr = d.filter(
-                r => r.Servicio === s
-            );
-
-            const yes = rr.filter(r =>
-
-                /^(yes|sí|si|checked|check)$/i.test(
-
-                    String(r[chosen] ?? '').trim()
-
-                )
-
-            ).length;
-
-            const no = rr.filter(r =>
-
-                /^(no|unchecked)$/i.test(
-
-                    String(r[chosen] ?? '').trim()
-
-                )
-
-            ).length;
-
-            const blank = rr.filter(r =>
-
-                !String(r[chosen] ?? '').trim()
-
-            ).length;
-
-            const other =
-                rr.length - yes - no - blank;
-
-            return `
-
-                <div class="compare-row">
-
-                    <strong>${esc(s)}</strong>
-
-                    <div class="compare-values">
-
-                        <span>
-                            Sí / marcado: ${yes}
-                        </span>
-
-                        <span>
-                            No / desmarcado: ${no}
-                        </span>
-
-                        <span>
-                            Sin respuesta: ${blank}
-                        </span>
-
-                        <span>
-                            Otros / No aplica: ${other}
-                        </span>
-
-                    </div>
-
-                </div>
-
-            `;
-
-        });
-
-        $('visual').innerHTML = `
-
-            <label class="compare-selector">
-
-                Variable para comparar
-
-                <select id="comparefield">
-
-                    ${dataKeys.map(k => `
-
-                        <option
-
-                            value="${esc(k)}"
-
-                            ${k === chosen ? 'selected' : ''}>
-
-                            ${esc(labels[k] || k)}
-
-                        </option>
-
-                    `).join('')}
-
-                </select>
-
-            </label>
-
-            ${subset.join('')}
-
-        `;
-
-        $('comparefield').addEventListener(
-            'change',
-            render
-        );
+        renderComparacionVariable(d);
 
         foot =
-            'Distribución descriptiva. Los códigos numéricos no se interpretan automáticamente como Sí o No.';
+            'Distribución de las respuestas originales por servicio. Los códigos numéricos no se interpretan automáticamente como cumplimiento.';
 
     }
 
@@ -1082,9 +1465,9 @@ function render() {
 
             <div class="empty-state">
 
-                No es posible calcular pacientes por mes
-                sin fechas de auditoría e identificadores
-                seudonimizados de paciente.
+                No es posible calcular pacientes únicos
+                sin un identificador seudonimizado
+                de paciente.
 
             </div>
 
@@ -1099,10 +1482,8 @@ function render() {
 
     else if (Object.hasOwn(bradenLabels, key)) {
 
-        const available = d.filter(r =>
-
-            String(r[key] ?? '').trim() !== ''
-
+        const disponibles = d.filter(
+            r => texto(r[key]) !== ''
         );
 
         if (!d.length) {
@@ -1110,40 +1491,7 @@ function render() {
             $('visual').innerHTML = `
 
                 <div class="empty-state">
-
-                    No hay registros para los filtros
-                    seleccionados.
-
-                </div>
-
-            `;
-
-        } else if (!available.length) {
-
-            $('visual').innerHTML = `
-
-                <div class="empty-state">
-
-                    <strong>
-
-                        ${esc(bradenLabels[key])}
-
-                    </strong>
-
-                    <p>
-
-                        No hay respuestas disponibles
-                        para esta variable.
-
-                    </p>
-
-                    <p>
-
-                        Verifica que REDCap esté enviando
-                        información para este campo.
-
-                    </p>
-
+                    No hay registros para esta selección.
                 </div>
 
             `;
@@ -1160,26 +1508,10 @@ function render() {
 
                     if (b === 'Sin respuesta') return -1;
 
-                    if (
-
-                        Number.isFinite(Number(a)) &&
-
-                        Number.isFinite(Number(b))
-
-                    ) {
-
-                        return Number(a) - Number(b);
-
-                    }
-
                     return a.localeCompare(
-
                         b,
-
                         'es',
-
                         { numeric: true }
-
                     );
 
                 });
@@ -1191,8 +1523,8 @@ function render() {
         }
 
         foot =
-            `${available.length} de ${d.length} registros con respuesta. ` +
-            'Los porcentajes se calculan sobre los registros seleccionados. La escala Braden no forma parte del cálculo provisional de adherencia.';
+            `${disponibles.length} de ${d.length} registros con respuesta. ` +
+            'La escala Braden no forma parte del cálculo provisional de adherencia.';
 
     }
 
@@ -1203,15 +1535,8 @@ function render() {
         renderBars(
 
             dataKeys.map(k => [
-
                 labels[k] || k,
-
-                d.filter(r =>
-
-                    !String(r[k] ?? '').trim()
-
-                ).length
-
+                d.filter(r => !texto(r[k])).length
             ])
 
             .sort((a, b) => b[1] - a[1])
@@ -1221,42 +1546,30 @@ function render() {
         );
 
         foot =
-            'Se muestran las 20 variables con mayor número de celdas vacías. Algunas preguntas pueden ser condicionales.';
+            'Las 20 variables con mayor número de campos vacíos. Algunas preguntas pueden ser condicionales.';
 
     }
 
     // DATOS VACÍOS POR SERVICIO
 
-    else if (key === '__missingservice') {
+    else if (
+        key === '__missingservice' ||
+        key === '__compare_missing'
+    ) {
 
         renderBars(
 
             services.map(s => [
-
                 s,
-
-                d.filter(r => r.Servicio === s)
-
-                    .reduce(
-
-                        (sum, r) => sum + dataKeys.filter(
-
-                            k => !String(
-                                r[k] ?? ''
-                            ).trim()
-
-                        ).length,
-
-                        0
-
-                    )
-
+                contarVacios(
+                    d.filter(r => r.Servicio === s)
+                )
             ])
 
         );
 
         foot =
-            'Número de celdas vacías, no número de pacientes.';
+            'Cantidad de celdas vacías por servicio, no número de pacientes.';
 
     }
 
@@ -1267,39 +1580,18 @@ function render() {
         renderBars(
 
             [
-
                 [
-
                     'Con campos vacíos',
-
                     d.filter(r =>
-
-                        dataKeys.some(k =>
-
-                            !String(r[k] ?? '').trim()
-
-                        )
-
+                        dataKeys.some(k => !texto(r[k]))
                     ).length
-
                 ],
-
                 [
-
                     'Sin campos vacíos',
-
                     d.filter(r =>
-
-                        dataKeys.every(k =>
-
-                            String(r[k] ?? '').trim()
-
-                        )
-
+                        dataKeys.every(k => texto(r[k]))
                     ).length
-
                 ]
-
             ],
 
             true
@@ -1308,310 +1600,344 @@ function render() {
 
     }
 
-    // GRÁFICAS GENERALES
+    // DISTRIBUCIONES GENERALES
 
     else {
 
-        renderBars(counts(d, key), true);
-
-        if (key === 'Servicio') {
-
-            foot =
-                'Distribución de registros por servicio.';
-
-        }
+        renderBars(
+            counts(d, key),
+            true
+        );
 
     }
 
-    // ACTUALIZAR INFORMACIÓN GENERAL
+    actualizarTexto('foot', foot);
 
-    $('foot').textContent = foot;
+    actualizarTexto(
+        'charttitle',
+        $('variable').selectedOptions[0]?.textContent ||
+        'Resultados'
+    );
+
+    actualizarTexto(
+        'chartdesc',
+        'Distribución según los filtros seleccionados'
+    );
 
     renderService(d);
 
-    $('charttitle').textContent =
+    renderTable(d, key);
 
-        $('variable').selectedOptions[0]?.textContent ||
+}
 
-        'Resultados';
+// ==========================================
+// TABLA DE REGISTROS
+// ==========================================
 
-    $('chartdesc').textContent =
+function renderTable(d, key) {
 
-        'Distribución según los filtros seleccionados';
-
-    // BUSCADOR DE REGISTROS
-
-    const q = $('search').value
-
-        .trim()
-
-        .toLowerCase();
+    const q = texto(
+        $('search').value
+    ).toLowerCase();
 
     const adherenceViews = [
-
         '__adherence',
-
         '__criteria_adherence',
-
         '__monthly_adherence',
-
         '__compare_adherence'
-
     ];
 
-    $('tbody').innerHTML = d.filter(r =>
+    const registros = d.filter(r =>
 
         !q ||
 
         [
-
             r.ID_Aplicacion,
-
-            r.Evaluador_Autocontrol,
-
-            r.Servicio
-
+            r.Evaluador,
+            r.Servicio,
+            r.Tipo_Control
         ].some(v =>
 
-            String(v || '')
-
-                .toLowerCase()
-
-                .includes(q)
+            texto(v).toLowerCase().includes(q)
 
         )
 
-    )
+    );
 
-    .slice(0, 100)
+    $('tbody').innerHTML = registros
 
-    .map(r => {
+        .slice(0, 100)
 
-        const indicador = calcularAdherencia([r]);
+        .map(r => {
 
-        const value = adherenceViews.includes(key)
+            let value;
 
-            ? (
+            if (adherenceViews.includes(key)) {
 
-                indicador.porcentaje === null
+                const a = calcularAdherencia([r]);
+
+                value = a.porcentaje === null
 
                     ? 'Sin evaluaciones'
 
-                    : `${indicador.numerador}/${indicador.denominador} · ${indicador.porcentaje.toFixed(2)}%`
+                    : `${a.numerador}/${a.denominador} · ${formatoPorcentaje(a.porcentaje)}`;
 
-            )
+            } else if (key === '__compare_variable') {
 
-            : String(r[key] ?? '').trim();
+                value = texto(r[compareField]);
 
-        return `
+            } else if (key === '__monthly_apps') {
 
-            <tr>
+                value = texto(r.Fecha_Auditoria);
 
-                <td>
-                    ${esc(r.ID_Aplicacion)}
-                </td>
+            } else if (key === '__compare_count') {
 
-                <td>
-                    ${esc(r.Servicio)}
-                </td>
+                value = texto(r.ID_Aplicacion);
 
-                <td>
-                    ${esc(r.Tipo_Control)}
-                </td>
+            } else if (
+                key === '__missing' ||
+                key === '__missingservice' ||
+                key === '__compare_missing' ||
+                key === '__missingrows'
+            ) {
 
-                <td>
-                    ${esc(r.Evaluador_Autocontrol)}
-                </td>
+                value = `${contarVacios([r])} campos vacíos`;
 
-                <td class="${!value ? 'muted' : ''}">
+            } else if (key === '__month') {
 
-                    ${esc(value || 'Sin respuesta')}
+                value = 'Paciente único no disponible';
 
-                </td>
+            } else {
 
-            </tr>
+                value = texto(r[key]);
 
-        `;
+            }
 
-    })
+            return `
 
-    .join('') ||
+                <tr>
 
-    '<tr><td colspan="5">Sin registros</td></tr>';
+                    <td>
+                        ${esc(r.ID_Aplicacion)}
+                    </td>
+
+                    <td>
+                        ${esc(r.Servicio)}
+                    </td>
+
+                    <td>
+                        ${esc(r.Tipo_Control)}
+                    </td>
+
+                    <td>
+                        ${esc(r.Evaluador || 'Sin respuesta')}
+                    </td>
+
+                    <td class="${!value ? 'muted' : ''}">
+                        ${esc(value || 'Sin respuesta')}
+                    </td>
+
+                </tr>
+
+            `;
+
+        })
+
+        .join('') ||
+
+        '<tr><td colspan="5">Sin registros</td></tr>';
 
 }
 
-// TÍTULOS DE LAS SECCIONES
+// ==========================================
+// TÍTULOS DE SECCIONES
+// ==========================================
 
 const titles = {
 
+    general: [
+        'Resumen general',
+        'Indicador PE-ID-01 y caracterización de auditorías'
+    ],
+
     mensual: [
-
         'Adherencia por mes',
-
         'Seguimiento temporal del indicador PE-ID-01'
-
     ],
 
     comparativo: [
-
         'Comparativo de servicios',
-
-        'Análisis entre Salas de Cirugía, UCI y Hospitalización'
-
-    ],
-
-    general: [
-
-        'Resumen general',
-
-        'Indicador PE-ID-01 y caracterización de las auditorías'
-
+        'Salas de Cirugía, UCI y Hospitalización'
     ],
 
     riesgo: [
-
         'Valoración del riesgo',
-
         'Escala Braden y valoración de riesgos'
-
     ],
 
     postural: [
-
         'Cambios posturales',
-
         'Cumplimiento y motivos de incumplimiento'
-
     ],
 
     prevencion: [
-
         'Prevención de lesiones de piel',
-
         'Medidas preventivas y cuidados'
-
     ],
 
     calidad: [
-
         'Calidad de datos',
-
         'Completitud de registros y respuestas faltantes'
-
     ]
 
 };
 
-// CAMBIO DE PESTAÑAS
+// ==========================================
+// NAVEGACIÓN ENTRE PESTAÑAS
+// ==========================================
 
 function setTab(t) {
+
+    if (!groups[t]) return;
 
     tab = t;
 
     document.querySelectorAll('[data-tab]').forEach(b => {
 
         b.classList.toggle(
-
             'active',
-
             b.dataset.tab === t
-
         );
 
     });
 
-    $('sectiontitle').textContent = titles[t][0];
+    actualizarTexto(
+        'sectiontitle',
+        titles[t][0]
+    );
 
-    $('sectiondesc').textContent = titles[t][1];
+    actualizarTexto(
+        'sectiondesc',
+        titles[t][1]
+    );
 
-    $('variable').innerHTML = groups[t].map(([k, l]) => `
+    $('variable').innerHTML = groups[t].map(
+        ([k, l]) => `
 
-        <option value="${esc(k)}">
+            <option value="${esc(k)}">
 
-            ${esc(l || labels[k] || k)}
+                ${esc(l || labels[k] || k)}
 
-        </option>
+            </option>
 
-    `).join('');
+        `
+    ).join('');
 
     render();
 
 }
 
-// EVENTOS DE NAVEGACIÓN
-
 document.querySelectorAll('[data-tab]').forEach(b => {
 
     b.addEventListener(
-
         'click',
-
         () => setTab(b.dataset.tab)
-
     );
 
 });
 
+// ==========================================
 // EVENTOS DE FILTROS
+// ==========================================
+
+$('service').addEventListener(
+    'change',
+    () => {
+
+        refreshEvaluators();
+
+        render();
+
+    }
+);
+
+$('control').addEventListener(
+    'change',
+    () => {
+
+        refreshEvaluators();
+
+        render();
+
+    }
+);
 
 [
-
-    'service',
-
-    'control',
-
     'evaluator',
-
     'from',
-
     'to',
-
-    'variable',
-
-    'search'
-
+    'variable'
 ].forEach(id => {
 
     $(id).addEventListener(
-
-        id === 'search' ? 'input' : 'change',
-
+        'change',
         render
-
     );
 
 });
 
+$('search').addEventListener(
+    'input',
+    () => renderTable(
+        rows(),
+        $('variable').value
+    )
+);
+
+// ==========================================
 // LIMPIAR FILTROS
+// ==========================================
 
 $('clear').addEventListener('click', () => {
 
     [
-
         'service',
-
         'control',
-
         'evaluator',
-
         'from',
-
         'to',
-
         'search'
-
     ].forEach(id => {
 
         $(id).value = '';
 
     });
 
+    refreshEvaluators();
+
     render();
 
 });
 
+// ==========================================
 // EXPORTACIÓN CSV
+// ==========================================
+
+function csvCell(valor) {
+
+    let v = String(valor ?? '');
+
+    // Evitar fórmulas ejecutables en Excel.
+
+    if (/^[\s]*[=+\-@]/.test(v) || /^[\t\r\n]/.test(v)) {
+
+        v = "'" + v;
+
+    }
+
+    return '"' + v.replace(/"/g, '""') + '"';
+
+}
 
 $('export').addEventListener('click', () => {
 
@@ -1632,9 +1958,7 @@ $('export').addEventListener('click', () => {
         'Fecha_Auditoria',
 
         ...Object.keys(labels).filter(
-
             k => k.startsWith('Criterio_')
-
         )
 
     ];
@@ -1644,36 +1968,28 @@ $('export').addEventListener('click', () => {
         cols,
 
         ...d.map(r =>
-
             cols.map(k => r[k] ?? '')
-
         )
 
     ]
 
     .map(row =>
-
-        row.map(x =>
-
-            '"' + String(x).replace(/"/g, '""') + '"'
-
-        ).join(';')
-
+        row.map(csvCell).join(';')
     )
 
     .join('\r\n');
 
-    const url = URL.createObjectURL(
+    const blob = new Blob(
 
-        new Blob(
+        ['\ufeff' + csv],
 
-            ['\ufeff' + csv],
-
-            { type: 'text/csv;charset=utf-8' }
-
-        )
+        {
+            type: 'text/csv;charset=utf-8'
+        }
 
     );
+
+    const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
 
@@ -1687,6 +2003,12 @@ $('export').addEventListener('click', () => {
 
 });
 
+// ==========================================
 // INICIAR DASHBOARD
+// ==========================================
+
+iniciarControles();
+
+refreshEvaluators();
 
 setTab('general');
